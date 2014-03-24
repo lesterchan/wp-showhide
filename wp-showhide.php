@@ -3,7 +3,7 @@
 Plugin Name: WP-ShowHide
 Plugin URI: http://lesterchan.net/portfolio/programming/php/
 Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 1.00
+Version: 1.01
 Author: Lester 'GaMerZ' Chan
 Author URI: http://lesterchan.net
 Text Domain: wp-showhide
@@ -11,7 +11,7 @@ Text Domain: wp-showhide
 
 
 /*
-	Copyright 2013  Lester Chan  (email : lesterchan@gmail.com)
+	Copyright 2014  Lester Chan  (email : lesterchan@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,8 +56,10 @@ function showhide_shortcode($atts, $content = null) {
 	$less_text = sprintf($less_text, $word_count);
 
 	// Determine Whether To Show Or Hide Press Release
+	$hidden_class = 'hide';
 	$hidden_css = 'display: none;';
 	if($hidden == 'no') {
+		$hidden_class = 'show';
 		$hidden_css = 'display: block;';
 		$tmp_text = $more_text;
 		$more_text = $less_text;
@@ -65,8 +67,8 @@ function showhide_shortcode($atts, $content = null) {
 	}
 
 	// Format HTML Output
-	$output = '<div class="'.$type.'-link"><a href="#" onclick="showhide_toggle(\''.$type.'\', '.$post_id.', \''.esc_js($more_text).'\', \''.esc_js($less_text).'\'); return false;"><span id="'.$type.'-toggle-'.$post_id.'">'.$more_text.'</span></a></div>';
-	$output .= '<div id="'.$type.'-content-'.$post_id.'" class="'.$type.'-content" style="'.$hidden_css.'">'.$content.'</div>';
+	$output = '<div id="'.$type.'-link-'.$post_id.'" class="'.$type.'-link '.$hidden_class.'"><a href="#" onclick="showhide_toggle(\''.$type.'\', '.$post_id.', \''.esc_js($more_text).'\', \''.esc_js($less_text).'\'); return false;"><span id="'.$type.'-toggle-'.$post_id.'">'.$more_text.'</span></a></div>';
+	$output .= '<div id="'.$type.'-content-'.$post_id.'" class="'.$type.'-content '.$hidden_class.'" style="'.$hidden_css.'">'.$content.'</div>';
 
 	return $output;
 }
@@ -75,10 +77,24 @@ function showhide_shortcode($atts, $content = null) {
 ### Function: Add JavaScript To Footer
 add_action('wp_footer', 'showhide_footer');
 function showhide_footer() {
-	echo '<script type="text/javascript">'."\n";
-	echo '/* <![CDATA[ */'."\n";
-	echo 'function showhide_toggle(a,b,c,d){jQuery("#"+a+"-content-"+b).toggle();jQuery("#"+a+"-toggle-"+b).text(jQuery("#"+a+"-toggle-"+b).text()==c?d:c)};'."\n";
-	echo '/* ]]> */'."\n";
-	echo '</script>'."\n";
-}
 ?>
+	<script type="text/javascript">
+		<?php if(WP_DEBUG): ?>
+		function showhide_toggle(type, post_id, more_text, less_text) {
+			var   $link = jQuery("#"+ type + "-link-" + post_id)
+				, $content = jQuery("#"+ type + "-content-" + post_id)
+				, $toggle = jQuery("#"+ type + "-toggle-" + post_id)
+				, show_hide_class = 'show hide';
+			$link.toggleClass(show_hide_class);
+			$content.toggleClass(show_hide_class).toggle();
+			if($toggle.text() === more_text) {
+				$toggle.text(less_text);
+			} else {
+				$toggle.text(more_text);
+			}
+		}
+		<?php else : ?>
+		<?php endif; ?>
+	</script>
+<?php
+}
