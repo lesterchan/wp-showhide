@@ -78,23 +78,24 @@ function showhide_shortcode($atts, $content = null) {
 add_action('wp_footer', 'showhide_footer');
 function showhide_footer() {
 ?>
-	<script type="text/javascript">
-		<?php if(WP_DEBUG): ?>
-		function showhide_toggle(type, post_id, more_text, less_text) {
-			var   $link = jQuery("#"+ type + "-link-" + post_id)
-				, $content = jQuery("#"+ type + "-content-" + post_id)
-				, $toggle = jQuery("#"+ type + "-toggle-" + post_id)
-				, show_hide_class = 'show hide';
-			$link.toggleClass(show_hide_class);
-			$content.toggleClass(show_hide_class).toggle();
-			if($toggle.text() === more_text) {
-				$toggle.text(less_text);
-			} else {
-				$toggle.text(more_text);
+	<?php if(WP_DEBUG): ?>
+		<script type="text/javascript">
+			function showhide_toggle(type, post_id, more_text, less_text) {
+				var   $link = jQuery("#"+ type + "-link-" + post_id)
+					, $content = jQuery("#"+ type + "-content-" + post_id)
+					, $toggle = jQuery("#"+ type + "-toggle-" + post_id)
+					, show_hide_class = 'show hide';
+				$link.toggleClass(show_hide_class);
+				$content.toggleClass(show_hide_class).toggle();
+				if($toggle.text() === more_text) {
+					$toggle.text(less_text);
+				} else {
+					$toggle.text(more_text);
+				}
 			}
-		}
-		<?php else : ?>
-		<?php endif; ?>
-	</script>
+		</script>
+	<?php else : ?>
+		<script type="text/javascript">function showhide_toggle(a,b,c,d){var e=jQuery("#"+a+"-link-"+b),f=jQuery("#"+a+"-content-"+b);a=jQuery("#"+a+"-toggle-"+b);e.toggleClass("show hide");f.toggleClass("show hide").toggle();a.text()===c?a.text(d):a.text(c)};</script>
+	<?php endif; ?>
 <?php
 }
