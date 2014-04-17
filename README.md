@@ -3,7 +3,7 @@ Contributors: GamerZ
 Donate link: http://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 3.8
+Tested up to: 3.9  
 Stable tag: 1.01  
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link.
@@ -16,7 +16,7 @@ By default the content is hidden and user will have to click on the "Show Conten
 * N/A
 
 ### Development
-* [http://dev.wp-plugins.org/browser/wp-showhide/](http://dev.wp-plugins.org/browser/wp-showhide/ "http://dev.wp-plugins.org/browser/wp-showhide/")
+* [https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
 
 ### Translations
 * [http://dev.wp-plugins.org/browser/wp-showhide/i18n/](http://dev.wp-plugins.org/browser/wp-showhide/i18n/ "http://dev.wp-plugins.org/browser/wp-showhide/i18n/")
