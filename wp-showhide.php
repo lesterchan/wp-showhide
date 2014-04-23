@@ -3,7 +3,7 @@
 Plugin Name: WP-ShowHide
 Plugin URI: http://lesterchan.net/portfolio/programming/php/
 Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 1.01
+Version: 1.02
 Author: Lester 'GaMerZ' Chan
 Author URI: http://lesterchan.net
 Text Domain: wp-showhide
@@ -56,10 +56,10 @@ function showhide_shortcode($atts, $content = null) {
 	$less_text = sprintf($less_text, $word_count);
 
 	// Determine Whether To Show Or Hide Press Release
-	$hidden_class = 'hide';
+	$hidden_class = 'sh-hide';
 	$hidden_css = 'display: none;';
 	if($hidden == 'no') {
-		$hidden_class = 'show';
+		$hidden_class = 'sh-show';
 		$hidden_css = 'display: block;';
 		$tmp_text = $more_text;
 		$more_text = $less_text;
@@ -84,7 +84,7 @@ function showhide_footer() {
 				var   $link = jQuery("#"+ type + "-link-" + post_id)
 					, $content = jQuery("#"+ type + "-content-" + post_id)
 					, $toggle = jQuery("#"+ type + "-toggle-" + post_id)
-					, show_hide_class = 'show hide';
+					, show_hide_class = 'sh-show sh-hide';
 				$link.toggleClass(show_hide_class);
 				$content.toggleClass(show_hide_class).toggle();
 				if($toggle.text() === more_text) {
@@ -95,7 +95,7 @@ function showhide_footer() {
 			}
 		</script>
 	<?php else : ?>
-		<script type="text/javascript">function showhide_toggle(a,b,c,d){var e=jQuery("#"+a+"-link-"+b),f=jQuery("#"+a+"-content-"+b);a=jQuery("#"+a+"-toggle-"+b);e.toggleClass("show hide");f.toggleClass("show hide").toggle();a.text()===c?a.text(d):a.text(c)};</script>
+		<script type="text/javascript">function showhide_toggle(a,b,c,d){var e=jQuery("#"+a+"-link-"+b),f=jQuery("#"+a+"-content-"+b);a=jQuery("#"+a+"-toggle-"+b);e.toggleClass("sh-show sh-hide");f.toggleClass("sh-show sh-hide").toggle();a.text()===c?a.text(d):a.text(c)};</script>
 	<?php endif; ?>
 <?php
 }
