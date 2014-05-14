@@ -3,7 +3,7 @@
 Plugin Name: WP-ShowHide
 Plugin URI: http://lesterchan.net/portfolio/programming/php/
 Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 1.02
+Version: 1.03
 Author: Lester 'GaMerZ' Chan
 Author URI: http://lesterchan.net
 Text Domain: wp-showhide
@@ -67,8 +67,8 @@ function showhide_shortcode($atts, $content = null) {
 	}
 
 	// Format HTML Output
-	$output = '<div id="'.$type.'-link-'.$post_id.'" class="'.$type.'-link '.$hidden_class.'"><a href="#" onclick="showhide_toggle(\''.$type.'\', '.$post_id.', \''.esc_js($more_text).'\', \''.esc_js($less_text).'\'); return false;"><span id="'.$type.'-toggle-'.$post_id.'">'.$more_text.'</span></a></div>';
-	$output .= '<div id="'.$type.'-content-'.$post_id.'" class="'.$type.'-content '.$hidden_class.'" style="'.$hidden_css.'">'.$content.'</div>';
+	$output = '<div id="'.$type.'-link-'.$post_id.'" class="sh-link '.$type.'-link '.$hidden_class.'"><a href="#" onclick="showhide_toggle(\''.$type.'\', '.$post_id.', \''.esc_js($more_text).'\', \''.esc_js($less_text).'\'); return false;"><span id="'.$type.'-toggle-'.$post_id.'">'.$more_text.'</span></a></div>';
+	$output .= '<div id="'.$type.'-content-'.$post_id.'" class="sh-content '.$type.'-content '.$hidden_class.'" style="'.$hidden_css.'">'.$content.'</div>';
 
 	return $output;
 }
