@@ -31,6 +31,7 @@ By default the content is hidden and user will have to click on the "Show Conten
 
 ### Version 1.03
 * NEW: Added `.sh-link` and `.sh-content` as a standard class name on top of the type specific class name.
+* NEW: Added do_shortcode() to allow shortcode to be parsed within ShowHide
 
 ### Version 1.02
 * FIXED: Some theme uses `.hide` as `display: none` and hence I have changed `.show` to `.sh-show` and `.hide` to `.sh-hide` to advoid conflicts.
