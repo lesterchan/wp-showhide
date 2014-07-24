@@ -9,23 +9,22 @@ Stable tag: 1.03
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link.
 
 ## Description
-
 By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
 
-### Previous Versions
-* N/A
+### Build Status
+[![Build Status](https://travis-ci.org/lesterchan/wp-showhide.svg?branch=master)](https://travis-ci.org/lesterchan/wp-showhide)
 
 ### Development
-* [https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
+[https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
 
 ### Translations
-* [http://dev.wp-plugins.org/browser/wp-showhide/i18n/](http://dev.wp-plugins.org/browser/wp-showhide/i18n/ "http://dev.wp-plugins.org/browser/wp-showhide/i18n/")
+[http://dev.wp-plugins.org/browser/wp-showhide/i18n/](http://dev.wp-plugins.org/browser/wp-showhide/i18n/ "http://dev.wp-plugins.org/browser/wp-showhide/i18n/")
 
 ### Credits
 * N/A
 
 ### Donations
-* I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appericiate it. If not feel free to use it without any obligations.
+I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appericiate it. If not feel free to use it without any obligations.
 
 ## Changelog
 
