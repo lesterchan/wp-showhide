@@ -3,8 +3,8 @@ Contributors: GamerZ
 Donate link: http://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 4.1  
-Stable tag: 1.03  
+Tested up to: 4.2  
+Stable tag: 1.04  
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link.
 
@@ -27,6 +27,8 @@ By default the content is hidden and user will have to click on the "Show Conten
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
 ## Changelog
+### Version 1.04
+* NEW: Added aria-hidden and aria-expanded to elements
 
 ### Version 1.03
 * NEW: Added `.sh-link` and `.sh-content` as a standard class name on top of the type specific class name.
