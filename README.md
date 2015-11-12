@@ -3,10 +3,10 @@ Contributors: GamerZ
 Donate link: http://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 4.3  
+Tested up to: 4.4  
 Stable tag: 1.04  
 
-Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the cotent via a link.
+Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
 
 ## Description
 By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
