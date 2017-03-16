@@ -34,6 +34,8 @@ function showhide_scripts() {
 	wp_enqueue_script( 'jquery' );
 }
 
+add_filter('widget_text', 'do_shortcode');
+
 ### Function: Load Translation
 add_action( 'plugins_loaded', 'showhide_textdomain' );
 function showhide_textdomain() {
