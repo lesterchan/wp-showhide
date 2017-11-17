@@ -17,7 +17,7 @@ By default the content is hidden and user will have to click on the "Show Conten
 3. Default Values: `[showhide type="pressrelease" more_text="Show Press Release (%s More Words)" less_text="Hide Press Release (%s Less Words)" hidden="yes"]`
 
 1. You can have multiple showhide content within a post or a page, just by having a new type.
-2. Example: `[showhide type="links" more_text="Show Links (%s More Words)" less_text="Hide Links (%s More Words)"]Links will go in here.[/showhide]`
+2. Example: `[showhide type="links" more_text="Show Links (%s More Words)" less_text="Hide Links (%s Less Words)"]Links will go in here.[/showhide]`
 
 1. If you want to set the default visibility to display.
 2. Example: `[showhide hidden="no"]Press release content goes in here.[/showhide]`
