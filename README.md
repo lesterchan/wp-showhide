@@ -3,7 +3,7 @@ Contributors: GamerZ
 Donate link: http://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 4.7  
+Tested up to: 4.9  
 Stable tag: trunk  
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
