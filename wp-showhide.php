@@ -44,6 +44,8 @@ function showhide_textdomain() {
 add_shortcode( 'showhide', 'showhide_shortcode' );
 function showhide_shortcode( $atts, $content = null ) {
 	// Variables
+	static $shortcode_number = 0; // Used to make each showhide unique
+	$shortcode_number++;
 	$post_id = get_the_id();
 	$word_count = number_format_i18n( sizeof( explode( ' ', strip_tags( $content ) ) ) );
 
@@ -73,8 +75,8 @@ function showhide_shortcode( $atts, $content = null ) {
 	}
 
 	// Format HTML Output
-	$output  = '<div id="' . $attributes['type'] . '-link-' . $post_id . '" class="sh-link ' . $attributes['type'] . '-link ' . $hidden_class .'"><a href="#" onclick="showhide_toggle(\'' . esc_js( $attributes['type'] ) . '\', ' . $post_id . ', \'' . esc_js( $more_text ) . '\', \'' . esc_js( $less_text ) . '\'); return false;" aria-expanded="' . $hidden_aria_expanded .'"><span id="' . $attributes['type'] . '-toggle-' . $post_id . '">' . $more_text . '</span></a></div>';
-	$output .= '<div id="' . $attributes['type'] . '-content-' . $post_id . '" class="sh-content ' . $attributes['type'] . '-content ' . $hidden_class . '" style="' . $hidden_css . '">' . do_shortcode( $content ) . '</div>';
+	$output  = '<div id="' . $attributes['type'] . '-link-' . $post_id . '-' . $shortcode_number . '" class="sh-link ' . $attributes['type'] . '-link ' . $hidden_class .'"><a href="#" onclick="showhide_toggle(\'' . esc_js( $attributes['type'] ) . '\', \'' . $post_id . '-' . $shortcode_number . '\', \'' . esc_js( $more_text ) . '\', \'' . esc_js( $less_text ) . '\'); return false;" aria-expanded="' . $hidden_aria_expanded .'"><span id="' . $attributes['type'] . '-toggle-' . $post_id . '-' . $shortcode_number . '">' . $more_text . '</span></a></div>';
+	$output .= '<div id="' . $attributes['type'] . '-content-' . $post_id . '-' . $shortcode_number . '" class="sh-content ' . $attributes['type'] . '-content ' . $hidden_class . '" style="' . $hidden_css . '">' . do_shortcode( $content ) . '</div>';
 
 	return $output;
 }
