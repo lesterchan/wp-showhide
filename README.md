@@ -3,7 +3,7 @@ Contributors: GamerZ
 Donate link: http://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 5.9  
+Tested up to: 6.1  
 Stable tag: trunk  
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
@@ -44,9 +44,6 @@ By default the content is hidden and user will have to click on the "Show Conten
 .pressrelease-content.sh-show { }
 ```
 
-### Build Status
-[![Build Status](https://travis-ci.org/lesterchan/wp-showhide.svg?branch=master)](https://travis-ci.org/lesterchan/wp-showhide)
-
 ### Development
 [https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
 
@@ -60,6 +57,9 @@ By default the content is hidden and user will have to click on the "Show Conten
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
 ## Changelog
+### Version 1.05
+* FIXED: esc_attr type attributes to prevent XSS
+
 ### Version 1.04
 * NEW: Added aria-hidden and aria-expanded to elements
 
