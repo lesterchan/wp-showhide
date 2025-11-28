@@ -1,10 +1,10 @@
 # WP-ShowHide
 Contributors: GamerZ  
-Donate link: http://lesterchan.net/site/donation/  
+Donate link: https://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 3.0  
-Tested up to: 6.3  
-Stable tag: trunk  
+Tested up to: 6.8  
+Stable tag: 1.06  
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
 
@@ -57,6 +57,9 @@ By default the content is hidden and user will have to click on the "Show Conten
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
 ## Changelog
+### Version 1.06
+* FIXED: esc_html() for more text to prevent XSS
+
 ### Version 1.05
 * FIXED: esc_attr type attributes to prevent XSS
 

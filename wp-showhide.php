@@ -3,7 +3,7 @@
 Plugin Name: WP-ShowHide
 Plugin URI: https://lesterchan.net/portfolio/programming/php/
 Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 1.05
+Version: 1.06
 Author: Lester 'GaMerZ' Chan
 Author URI: https://lesterchan.net
 Text Domain: wp-showhide
@@ -11,7 +11,7 @@ Domain Path: /languages/
 License: GPL2
 */
 
-/*  Copyright 2023  Lester Chan  (email : lesterchan@gmail.com)
+/*  Copyright 2025  Lester Chan  (email : lesterchan@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -73,7 +73,7 @@ function showhide_shortcode( $atts, $content = null ) {
 	}
 
 	// Format HTML Output
-	$output  = '<div id="' . esc_attr( $attributes['type'] ) . '-link-' . $post_id . '" class="sh-link ' . esc_attr( $attributes['type'] ) . '-link ' . $hidden_class .'"><a href="#" onclick="showhide_toggle(\'' . esc_js( $attributes['type'] ) . '\', ' . $post_id . ', \'' . esc_js( $more_text ) . '\', \'' . esc_js( $less_text ) . '\'); return false;" aria-expanded="' . $hidden_aria_expanded .'"><span id="' . esc_attr( $attributes['type'] ) . '-toggle-' . $post_id . '">' . $more_text . '</span></a></div>';
+	$output  = '<div id="' . esc_attr( $attributes['type'] ) . '-link-' . $post_id . '" class="sh-link ' . esc_attr( $attributes['type'] ) . '-link ' . $hidden_class .'"><a href="#" onclick="showhide_toggle(\'' . esc_js( $attributes['type'] ) . '\', ' . $post_id . ', \'' . esc_js( $more_text ) . '\', \'' . esc_js( $less_text ) . '\'); return false;" aria-expanded="' . $hidden_aria_expanded .'"><span id="' . esc_attr( $attributes['type'] ) . '-toggle-' . $post_id . '">' . esc_html( $more_text ). '</span></a></div>';
 	$output .= '<div id="' . esc_attr( $attributes['type'] ) . '-content-' . $post_id . '" class="sh-content ' . esc_attr( $attributes['type'] ) . '-content ' . $hidden_class . '" style="' . $hidden_css . '">' . do_shortcode( $content ) . '</div>';
 
 	return $output;
