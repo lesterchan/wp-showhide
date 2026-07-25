@@ -3,7 +3,7 @@
 Plugin Name: WP-ShowHide
 Plugin URI: https://lesterchan.net/portfolio/programming/php/
 Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 1.06
+Version: 2.0.0
 Author: Lester 'GaMerZ' Chan
 Author URI: https://lesterchan.net
 Text Domain: wp-showhide
@@ -28,10 +28,63 @@ License: GPL2
 */
 
 
-### Function: Enqueue JavaScripts
+### Function: Register Scripts And Styles
 add_action( 'wp_enqueue_scripts', 'showhide_scripts' );
 function showhide_scripts() {
-	wp_enqueue_script( 'jquery' );
+	// Registered With No src So Only The Inline Script Is Printed, And Only When The ShortCode Enqueues It
+	wp_register_script( 'wp-showhide', false, array(), '2.0.0', true );
+	wp_add_inline_script( 'wp-showhide', showhide_js() );
+
+	// Enqueued Unconditionally So The Toggle Is Styled In The Head And Never Flashes As A Native Button
+	wp_register_style( 'wp-showhide', false, array(), '2.0.0' );
+	wp_enqueue_style( 'wp-showhide' );
+	wp_add_inline_style( 'wp-showhide', '.sh-toggle{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline}.sh-content[hidden]{display:none}' );
+}
+
+### Function: ShowHide JavaScript
+function showhide_js() {
+	return <<<'JS'
+( function () {
+	document.addEventListener( 'click', function ( e ) {
+		var button = e.target.closest ? e.target.closest( '.sh-toggle' ) : null;
+		if ( ! button ) {
+			return;
+		}
+
+		var wrap = button.closest( '.sh-link' ),
+			content = document.getElementById( button.getAttribute( 'aria-controls' ) ),
+			expanded = button.getAttribute( 'aria-expanded' ) === 'true';
+
+		if ( ! content ) {
+			return;
+		}
+
+		button.setAttribute( 'aria-expanded', expanded ? 'false' : 'true' );
+		button.textContent = expanded ? button.dataset.shMore : button.dataset.shLess;
+		content.hidden = expanded;
+
+		[ wrap, content ].forEach( function ( el ) {
+			if ( el ) {
+				el.classList.toggle( 'sh-show', ! expanded );
+				el.classList.toggle( 'sh-hide', expanded );
+			}
+		} );
+
+		[ expanded ? 'sh-link:less' : 'sh-link:more', 'sh-link:toggle' ].forEach( function ( name ) {
+			wrap.dispatchEvent( new CustomEvent( name, { bubbles: true } ) );
+		} );
+	} );
+
+	// Deprecated: Retained So 1.x Callers Of showhide_toggle() Keep Working
+	window.showhide_toggle = function ( type, post_id ) {
+		var wrap = document.getElementById( type + '-link-' + post_id ),
+			button = wrap ? wrap.querySelector( '.sh-toggle' ) : null;
+		if ( button ) {
+			button.click();
+		}
+	};
+}() );
+JS;
 }
 
 ### Function: Load Translation
@@ -44,8 +97,8 @@ function showhide_textdomain() {
 add_shortcode( 'showhide', 'showhide_shortcode' );
 function showhide_shortcode( $atts, $content = null ) {
 	// Variables
-	$post_id = get_the_id();
-	$word_count = number_format_i18n( sizeof( explode( ' ', strip_tags( $content ) ) ) );
+	$post_id = absint( get_the_id() );
+	$word_count = number_format_i18n( count( preg_split( '/\s+/', trim( strip_tags( (string) $content ) ), -1, PREG_SPLIT_NO_EMPTY ) ) );
 
 	// Extract ShortCode Attributes
 	$attributes = shortcode_atts( array(
@@ -55,61 +108,35 @@ function showhide_shortcode( $atts, $content = null ) {
 		'hidden' => 'yes'
 	), $atts );
 
-	// More/Less Text
-	$more_text = sprintf( $attributes['more_text'], $word_count );
-	$less_text = sprintf( $attributes['less_text'], $word_count );
+	// Sanitize The Type As It Is Used As An HTML ID And Class
+	$type = preg_replace( '/[^A-Za-z0-9_\x{00A0}-\x{10FFFF}-]/u', '', $attributes['type'] );
+	$attributes['type'] = ( null === $type || '' === $type ) ? 'pressrelease' : $type;
+
+	// More/Less Text (str_replace() Instead Of sprintf() As The Text Can Be User Supplied)
+	$more_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['more_text'] );
+	$less_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['less_text'] );
 
 	// Determine Whether To Show Or Hide Press Release
-	$hidden_class = 'sh-hide';
-	$hidden_css = 'display: none;';
-	$hidden_aria_expanded = 'false';
-	if( $attributes['hidden'] === 'no' ) {
-		$hidden_class = 'sh-show';
-		$hidden_css = 'display: block;';
-		$hidden_aria_expanded = 'true';
-		$tmp_text = $more_text;
-		$more_text = $less_text;
-		$less_text = $tmp_text;
-	}
+	$expanded = ( $attributes['hidden'] === 'no' );
+	$hidden_class = $expanded ? 'sh-show' : 'sh-hide';
+
+	// Only Loaded On Pages That Actually Use The ShortCode
+	wp_enqueue_script( 'wp-showhide' );
+
+	// A Post Can Use The Same Type More Than Once, So Suffix Repeats To Keep The IDs Unique
+	static $instances = array();
+	$base = $attributes['type'] . '-' . $post_id;
+	$instances[ $base ] = isset( $instances[ $base ] ) ? $instances[ $base ] + 1 : 1;
+	$instance = $instances[ $base ] > 1 ? '-' . $instances[ $base ] : '';
 
 	// Format HTML Output
-	$output  = '<div id="' . esc_attr( $attributes['type'] ) . '-link-' . $post_id . '" class="sh-link ' . esc_attr( $attributes['type'] ) . '-link ' . $hidden_class .'"><a href="#" onclick="showhide_toggle(\'' . esc_js( $attributes['type'] ) . '\', ' . $post_id . ', \'' . esc_js( $more_text ) . '\', \'' . esc_js( $less_text ) . '\'); return false;" aria-expanded="' . $hidden_aria_expanded .'"><span id="' . esc_attr( $attributes['type'] ) . '-toggle-' . $post_id . '">' . esc_html( $more_text ). '</span></a></div>';
-	$output .= '<div id="' . esc_attr( $attributes['type'] ) . '-content-' . $post_id . '" class="sh-content ' . esc_attr( $attributes['type'] ) . '-content ' . $hidden_class . '" style="' . $hidden_css . '">' . do_shortcode( $content ) . '</div>';
+	$link_id = $attributes['type'] . '-link-' . $post_id . $instance;
+	$content_id = $attributes['type'] . '-content-' . $post_id . $instance;
+
+	$output  = '<div id="' . esc_attr( $link_id ) . '" class="sh-link ' . esc_attr( $attributes['type'] ) . '-link ' . $hidden_class . '">';
+	$output .= '<button type="button" class="sh-toggle" aria-expanded="' . ( $expanded ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $content_id ) . '" data-sh-more="' . esc_attr( $more_text ) . '" data-sh-less="' . esc_attr( $less_text ) . '">' . esc_html( $expanded ? $less_text : $more_text ) . '</button>';
+	$output .= '</div>';
+	$output .= '<div id="' . esc_attr( $content_id ) . '" class="sh-content ' . esc_attr( $attributes['type'] ) . '-content ' . $hidden_class . '"' . ( $expanded ? '' : ' hidden' ) . '>' . do_shortcode( $content ) . '</div>';
 
 	return $output;
-}
-
-### Function: Add JavaScript To Footer
-add_action( 'wp_footer', 'showhide_footer' );
-function showhide_footer() {
-?>
-	<?php if( WP_DEBUG ): ?>
-		<script type="text/javascript">
-			function showhide_toggle(type, post_id, more_text, less_text) {
-				var   $link = jQuery("#"+ type + "-link-" + post_id)
-					, $link_a = jQuery('a', $link)
-					, $content = jQuery("#"+ type + "-content-" + post_id)
-					, $toggle = jQuery("#"+ type + "-toggle-" + post_id)
-					, show_hide_class = 'sh-show sh-hide';
-				$link.toggleClass(show_hide_class);
-				$content.toggleClass(show_hide_class).toggle();
-				if($link_a.attr('aria-expanded') === 'true') {
-					$link_a.attr('aria-expanded', 'false');
-				} else {
-					$link_a.attr('aria-expanded', 'true');
-				}
-				if($toggle.text() === more_text) {
-					$toggle.text(less_text);
-					$link.trigger( "sh-link:more" );
-				} else {
-					$toggle.text(more_text);
-					$link.trigger( "sh-link:less" );
-				}
-				$link.trigger( "sh-link:toggle" );
-			}
-		</script>
-	<?php else : ?>
-		<script type="text/javascript">function showhide_toggle(e,t,r,g){var a=jQuery("#"+e+"-link-"+t),s=jQuery("a",a),i=jQuery("#"+e+"-content-"+t),l=jQuery("#"+e+"-toggle-"+t);a.toggleClass("sh-show sh-hide"),i.toggleClass("sh-show sh-hide").toggle(),"true"===s.attr("aria-expanded")?s.attr("aria-expanded","false"):s.attr("aria-expanded","true"),l.text()===r?(l.text(g),a.trigger("sh-link:more")):(l.text(r),a.trigger("sh-link:less")),a.trigger("sh-link:toggle")}</script>
-	<?php endif; ?>
-<?php
 }
