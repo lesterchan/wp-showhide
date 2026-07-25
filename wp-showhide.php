@@ -1,15 +1,17 @@
 <?php
-/*
-Plugin Name: WP-ShowHide
-Plugin URI: https://lesterchan.net/portfolio/programming/php/
-Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
-Version: 2.0.0
-Author: Lester 'GaMerZ' Chan
-Author URI: https://lesterchan.net
-Text Domain: wp-showhide
-Domain Path: /languages/
-License: GPL2
-*/
+/**
+ * Plugin Name: WP-ShowHide
+ * Plugin URI: https://lesterchan.net/portfolio/programming/php/
+ * Description: Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link. By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: <code>[showhide type="pressrelease"]Press Release goes in here.[/showhide]</code>
+ * Version: 2.0.0
+ * Author: Lester 'GaMerZ' Chan
+ * Author URI: https://lesterchan.net
+ * Text Domain: wp-showhide
+ * Domain Path: /languages/
+ * License: GPL2
+ *
+ * @package WP-ShowHide
+ */
 
 /*
 	Copyright 2025  Lester Chan  (email : lesterchan@gmail.com)
@@ -28,21 +30,32 @@ License: GPL2
 	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
-// Function: Register Scripts And Styles
 add_action( 'wp_enqueue_scripts', 'showhide_scripts' );
+
+/**
+ * Registers the front end script and style.
+ *
+ * The script is registered without a src so that only the inline script is
+ * printed, and only on the pages where the shortcode enqueues it. The style is
+ * enqueued unconditionally so that the toggle is styled in the head and never
+ * flashes as a native button.
+ *
+ * @return void
+ */
 function showhide_scripts() {
-	// Registered With No src So Only The Inline Script Is Printed, And Only When The ShortCode Enqueues It
 	wp_register_script( 'wp-showhide', false, array(), '2.0.0', true );
 	wp_add_inline_script( 'wp-showhide', showhide_js() );
 
-	// Enqueued Unconditionally So The Toggle Is Styled In The Head And Never Flashes As A Native Button
 	wp_register_style( 'wp-showhide', false, array(), '2.0.0' );
 	wp_enqueue_style( 'wp-showhide' );
 	wp_add_inline_style( 'wp-showhide', '.sh-toggle{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline}.sh-content[hidden]{display:none}' );
 }
 
-// Function: ShowHide JavaScript
+/**
+ * Returns the front end JavaScript that toggles the content.
+ *
+ * @return string The JavaScript, without an enclosing script tag.
+ */
 function showhide_js() {
 	return <<<'JS'
 ( function () {
@@ -88,52 +101,67 @@ function showhide_js() {
 JS;
 }
 
-// Function: Load Translation
 add_action( 'plugins_loaded', 'showhide_textdomain' );
+
+/**
+ * Loads the plugin translations.
+ *
+ * @return void
+ */
 function showhide_textdomain() {
 	load_plugin_textdomain( 'wp-showhide', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
-// Function: Short Code For Inserting Press Release Into Post
 add_shortcode( 'showhide', 'showhide_shortcode' );
-function showhide_shortcode( $atts, $content = null ) {
-	// Variables
-	$post_id    = absint( get_the_id() );
-	$word_count = number_format_i18n( count( preg_split( '/\s+/', trim( strip_tags( (string) $content ) ), -1, PREG_SPLIT_NO_EMPTY ) ) );
 
-	// Extract ShortCode Attributes
+/**
+ * Renders the [showhide] shortcode.
+ *
+ * @param array|string $atts    Shortcode attributes. Accepts 'type', 'more_text',
+ *                              'less_text' and 'hidden'.
+ * @param string|null  $content The content to be shown or hidden.
+ * @return string The shortcode markup.
+ */
+function showhide_shortcode( $atts, $content = null ) {
+	// Variables.
+	$post_id    = absint( get_the_id() );
+	$word_count = number_format_i18n( count( preg_split( '/\s+/', wp_strip_all_tags( (string) $content ), -1, PREG_SPLIT_NO_EMPTY ) ) );
+
+	// Extract ShortCode Attributes.
 	$attributes = shortcode_atts(
 		array(
 			'type'      => 'pressrelease',
+			// translators: %s: Number of words in the hidden content.
 			'more_text' => __( 'Show Press Release (%s More Words)', 'wp-showhide' ),
+			// translators: %s: Number of words in the hidden content.
 			'less_text' => __( 'Hide Press Release (%s Less Words)', 'wp-showhide' ),
 			'hidden'    => 'yes',
 		),
 		$atts
 	);
 
-	// Sanitize The Type As It Is Used As An HTML ID And Class
+	// Sanitize the type as it is used as an HTML ID and class.
 	$type               = preg_replace( '/[^A-Za-z0-9_\x{00A0}-\x{10FFFF}-]/u', '', $attributes['type'] );
 	$attributes['type'] = ( null === $type || '' === $type ) ? 'pressrelease' : $type;
 
-	// More/Less Text (str_replace() Instead Of sprintf() As The Text Can Be User Supplied)
+	// More/less text, using str_replace() instead of sprintf() as the text can be user supplied.
 	$more_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['more_text'] );
 	$less_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['less_text'] );
 
-	// Determine Whether To Show Or Hide Press Release
-	$expanded     = ( $attributes['hidden'] === 'no' );
+	// Determine whether to show or hide the press release.
+	$expanded     = ( 'no' === $attributes['hidden'] );
 	$hidden_class = $expanded ? 'sh-show' : 'sh-hide';
 
-	// Only Loaded On Pages That Actually Use The ShortCode
+	// Only loaded on the pages that actually use the shortcode.
 	wp_enqueue_script( 'wp-showhide' );
 
-	// A Post Can Use The Same Type More Than Once, So Suffix Repeats To Keep The IDs Unique
+	// A post can use the same type more than once, so suffix repeats to keep the IDs unique.
 	static $instances   = array();
 	$base               = $attributes['type'] . '-' . $post_id;
 	$instances[ $base ] = isset( $instances[ $base ] ) ? $instances[ $base ] + 1 : 1;
 	$instance           = $instances[ $base ] > 1 ? '-' . $instances[ $base ] : '';
 
-	// Format HTML Output
+	// Format HTML output.
 	$link_id    = $attributes['type'] . '-link-' . $post_id . $instance;
 	$content_id = $attributes['type'] . '-content-' . $post_id . $instance;
 
