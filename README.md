@@ -2,7 +2,7 @@
 Contributors: GamerZ  
 Donate link: https://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
-Requires at least: 4.5  
+Requires at least: 4.6  
 Requires PHP: 7.4  
 Tested up to: 7.0  
 Stable tag: 2.0.0  
@@ -48,9 +48,6 @@ By default the content is hidden and user will have to click on the "Show Conten
 
 ### Development
 [https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
-
-### Translations
-[http://dev.wp-plugins.org/browser/wp-showhide/i18n/](http://dev.wp-plugins.org/browser/wp-showhide/i18n/ "http://dev.wp-plugins.org/browser/wp-showhide/i18n/")
 
 ### Credits
 * Plugin icon by [Freepik](http://www.freepik.com) from [Flaticon](http://www.flaticon.com)
