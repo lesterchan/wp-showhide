@@ -52,7 +52,7 @@ By default the content is hidden and user will have to click on the "Show Conten
 [https://github.com/lesterchan/wp-showhide](https://github.com/lesterchan/wp-showhide "https://github.com/lesterchan/wp-showhide")
 
 ### Credits
-* Plugin icon by [Freepik](http://www.freepik.com) from [Flaticon](http://www.flaticon.com)
+* Plugin icon by [Freepik](https://www.freepik.com) from [Flaticon](https://www.flaticon.com)
 
 ### Donations
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
