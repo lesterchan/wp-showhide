@@ -9,7 +9,7 @@
  * Author: Lester 'GaMerZ' Chan
  * Author URI: https://lesterchan.net
  * Text Domain: wp-showhide
- * Domain Path: /languages/
+ * Domain Path: /languages
  * License: GPL2
  *
  * @package WP-ShowHide
