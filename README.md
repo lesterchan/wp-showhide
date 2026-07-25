@@ -3,6 +3,7 @@ Contributors: GamerZ
 Donate link: https://lesterchan.net/site/donation/  
 Tags: show, hide, content, visibility, press release, toggle  
 Requires at least: 4.5  
+Requires PHP: 7.4  
 Tested up to: 7.0  
 Stable tag: 2.0.0  
 
@@ -83,6 +84,8 @@ The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a bre
 * FIXED: PHP 8.1+ deprecation notice when the shortcode is used without any content
 * FIXED: The toggle label no longer desyncs when the more/less text contains a backslash
 * FIXED: Using the same `type` more than once in a post no longer produces duplicate element IDs
+* FIXED: Word count no longer counts the contents of `<script>` and `<style>` blocks as words
+* Removed: `load_plugin_textdomain()`, which WordPress has handled automatically since 4.6
 
 ### Version 1.06
 * FIXED: esc_html() for more text to prevent XSS
