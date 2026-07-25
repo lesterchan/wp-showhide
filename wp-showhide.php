@@ -11,24 +11,25 @@ Domain Path: /languages/
 License: GPL2
 */
 
-/*  Copyright 2025  Lester Chan  (email : lesterchan@gmail.com)
+/*
+	Copyright 2025  Lester Chan  (email : lesterchan@gmail.com)
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as
-    published by the Free Software Foundation.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License, version 2, as
+	published by the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
-### Function: Register Scripts And Styles
+// Function: Register Scripts And Styles
 add_action( 'wp_enqueue_scripts', 'showhide_scripts' );
 function showhide_scripts() {
 	// Registered With No src So Only The Inline Script Is Printed, And Only When The ShortCode Enqueues It
@@ -41,7 +42,7 @@ function showhide_scripts() {
 	wp_add_inline_style( 'wp-showhide', '.sh-toggle{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline}.sh-content[hidden]{display:none}' );
 }
 
-### Function: ShowHide JavaScript
+// Function: ShowHide JavaScript
 function showhide_js() {
 	return <<<'JS'
 ( function () {
@@ -87,29 +88,32 @@ function showhide_js() {
 JS;
 }
 
-### Function: Load Translation
+// Function: Load Translation
 add_action( 'plugins_loaded', 'showhide_textdomain' );
 function showhide_textdomain() {
 	load_plugin_textdomain( 'wp-showhide', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
 
-### Function: Short Code For Inserting Press Release Into Post
+// Function: Short Code For Inserting Press Release Into Post
 add_shortcode( 'showhide', 'showhide_shortcode' );
 function showhide_shortcode( $atts, $content = null ) {
 	// Variables
-	$post_id = absint( get_the_id() );
+	$post_id    = absint( get_the_id() );
 	$word_count = number_format_i18n( count( preg_split( '/\s+/', trim( strip_tags( (string) $content ) ), -1, PREG_SPLIT_NO_EMPTY ) ) );
 
 	// Extract ShortCode Attributes
-	$attributes = shortcode_atts( array(
-		'type' => 'pressrelease',
-		'more_text' => __( 'Show Press Release (%s More Words)', 'wp-showhide' ),
-		'less_text' => __( 'Hide Press Release (%s Less Words)', 'wp-showhide' ),
-		'hidden' => 'yes'
-	), $atts );
+	$attributes = shortcode_atts(
+		array(
+			'type'      => 'pressrelease',
+			'more_text' => __( 'Show Press Release (%s More Words)', 'wp-showhide' ),
+			'less_text' => __( 'Hide Press Release (%s Less Words)', 'wp-showhide' ),
+			'hidden'    => 'yes',
+		),
+		$atts
+	);
 
 	// Sanitize The Type As It Is Used As An HTML ID And Class
-	$type = preg_replace( '/[^A-Za-z0-9_\x{00A0}-\x{10FFFF}-]/u', '', $attributes['type'] );
+	$type               = preg_replace( '/[^A-Za-z0-9_\x{00A0}-\x{10FFFF}-]/u', '', $attributes['type'] );
 	$attributes['type'] = ( null === $type || '' === $type ) ? 'pressrelease' : $type;
 
 	// More/Less Text (str_replace() Instead Of sprintf() As The Text Can Be User Supplied)
@@ -117,20 +121,20 @@ function showhide_shortcode( $atts, $content = null ) {
 	$less_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['less_text'] );
 
 	// Determine Whether To Show Or Hide Press Release
-	$expanded = ( $attributes['hidden'] === 'no' );
+	$expanded     = ( $attributes['hidden'] === 'no' );
 	$hidden_class = $expanded ? 'sh-show' : 'sh-hide';
 
 	// Only Loaded On Pages That Actually Use The ShortCode
 	wp_enqueue_script( 'wp-showhide' );
 
 	// A Post Can Use The Same Type More Than Once, So Suffix Repeats To Keep The IDs Unique
-	static $instances = array();
-	$base = $attributes['type'] . '-' . $post_id;
+	static $instances   = array();
+	$base               = $attributes['type'] . '-' . $post_id;
 	$instances[ $base ] = isset( $instances[ $base ] ) ? $instances[ $base ] + 1 : 1;
-	$instance = $instances[ $base ] > 1 ? '-' . $instances[ $base ] : '';
+	$instance           = $instances[ $base ] > 1 ? '-' . $instances[ $base ] : '';
 
 	// Format HTML Output
-	$link_id = $attributes['type'] . '-link-' . $post_id . $instance;
+	$link_id    = $attributes['type'] . '-link-' . $post_id . $instance;
 	$content_id = $attributes['type'] . '-content-' . $post_id . $instance;
 
 	$output  = '<div id="' . esc_attr( $link_id ) . '" class="sh-link ' . esc_attr( $attributes['type'] ) . '-link ' . $hidden_class . '">';
