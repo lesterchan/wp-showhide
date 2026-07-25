@@ -8,15 +8,16 @@
  * Requires PHP: 7.4
  * Author: Lester 'GaMerZ' Chan
  * Author URI: https://lesterchan.net
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-showhide
  * Domain Path: /languages
- * License: GPL2
  *
  * @package WP-ShowHide
  */
 
 /*
-	Copyright 2025  Lester Chan  (email : lesterchan@gmail.com)
+	Copyright 2026  Lester Chan  (email : lesterchan@gmail.com)
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as

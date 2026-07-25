@@ -3,9 +3,11 @@ Contributors: GamerZ
 Donate link: https://lesterchan.net/site/donation/  
 Tags: show, hide, toggle, visibility, press release  
 Requires at least: 4.6  
-Requires PHP: 7.4  
 Tested up to: 7.0  
 Stable tag: 2.0.0  
+Requires PHP: 7.4  
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
 
@@ -69,7 +71,7 @@ Version 2.0.0 rewrites the front-end JavaScript. The shortcode and its attribute
 The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a breaking change — they still fire on the `.sh-link` element and still bubble, so existing `jQuery( ... ).on( 'sh-link:toggle', ... )` handlers keep working.
 
 ## Changelog
-### Version 2.0.0
+### 2.0.0
 * New: WordPress 7.0
 * New: Rewritten in vanilla JavaScript, jQuery is no longer required
 * New: The JavaScript is now only loaded on pages that actually use the shortcode
@@ -85,26 +87,26 @@ The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a bre
 * Removed: `load_plugin_textdomain()`, which WordPress has handled automatically since 4.6
 * Removed: The global `showhide_toggle()` function, superseded by the delegated click handler
 
-### Version 1.06
+### 1.06
 * FIXED: esc_html() for more text to prevent XSS
 
-### Version 1.05
+### 1.05
 * FIXED: esc_attr type attributes to prevent XSS
 
-### Version 1.04
+### 1.04
 * NEW: Added aria-hidden and aria-expanded to elements
 
-### Version 1.03
+### 1.03
 * NEW: Added `.sh-link` and `.sh-content` as a standard class name on top of the type specific class name.
 * NEW: Added do_shortcode() to allow shortcode to be parsed within ShowHide
 
-### Version 1.02
+### 1.02
 * FIXED: Some theme uses `.hide` as `display: none` and hence I have changed `.show` to `.sh-show` and `.hide` to `.sh-hide` to advoid conflicts.
 
-### Version 1.01
+### 1.01
 * NEW: Added additional `show` or `hide` class to the link and content depending on the visiblity of the content to allow more precise CSS styling.
 
-### Version 1.00 (01-05-2011)
+### 1.00 (01-05-2011)
 * FIXED: Initial Release
 	
 ## Upgrade Notice
