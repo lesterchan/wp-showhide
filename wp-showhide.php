@@ -88,15 +88,6 @@ function showhide_js() {
 			wrap.dispatchEvent( new CustomEvent( name, { bubbles: true } ) );
 		} );
 	} );
-
-	// Deprecated: Retained So 1.x Callers Of showhide_toggle() Keep Working
-	window.showhide_toggle = function ( type, post_id ) {
-		var wrap = document.getElementById( type + '-link-' + post_id ),
-			button = wrap ? wrap.querySelector( '.sh-toggle' ) : null;
-		if ( button ) {
-			button.click();
-		}
-	};
 }() );
 JS;
 }

@@ -1,7 +1,7 @@
 # WP-ShowHide
 Contributors: GamerZ  
 Donate link: https://lesterchan.net/site/donation/  
-Tags: show, hide, content, visibility, press release, toggle  
+Tags: show, hide, toggle, visibility, press release  
 Requires at least: 4.6  
 Requires PHP: 7.4  
 Tested up to: 7.0  
@@ -62,7 +62,7 @@ Version 2.0.0 rewrites the front-end JavaScript. The shortcode and its attribute
 * **The inner `<span id="{type}-toggle-{post_id}">` has been removed.** The label now sits directly on the button, so anything targeting that ID should target `.sh-toggle` instead.
 * **Hidden content now uses the `hidden` attribute instead of `style="display: none;"`.** If your CSS sets `display` on `.sh-content` it will now win over `[hidden]`; add `.sh-content[hidden] { display: none; }` or raise your specificity.
 * **jQuery is no longer enqueued by this plugin.** If your theme was relying on WP-ShowHide to pull jQuery onto the page, enqueue it yourself.
-* **`showhide_toggle( type, post_id )` is deprecated.** It still works, but now ignores its third and fourth arguments and will be removed in a future release.
+* **The global `showhide_toggle()` function has been removed.** Nothing replaces it. To toggle a block programmatically, click its `.sh-toggle` button; to react to a toggle, listen for the `sh-link:toggle` event.
 * **Internet Explorer is no longer supported.** The script uses `Element.closest()` and the `CustomEvent` constructor.
 * **Repeating the same `type` within one post now appends a counter to the element IDs** (`pressrelease-content-1`, `pressrelease-content-1-2`, ...). The first occurrence keeps its original ID, so this only affects posts that were previously emitting duplicate IDs anyway. Style by class rather than ID if you use this pattern.
 
@@ -83,6 +83,7 @@ The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a bre
 * FIXED: Using the same `type` more than once in a post no longer produces duplicate element IDs
 * FIXED: Word count no longer counts the contents of `<script>` and `<style>` blocks as words
 * Removed: `load_plugin_textdomain()`, which WordPress has handled automatically since 4.6
+* Removed: The global `showhide_toggle()` function, superseded by the delegated click handler
 
 ### Version 1.06
 * FIXED: esc_html() for more text to prevent XSS
