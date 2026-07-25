@@ -71,7 +71,7 @@ function showhide_js() {
 			content = document.getElementById( button.getAttribute( 'aria-controls' ) ),
 			expanded = button.getAttribute( 'aria-expanded' ) === 'true';
 
-		if ( ! content ) {
+		if ( ! wrap || ! content ) {
 			return;
 		}
 
@@ -80,10 +80,8 @@ function showhide_js() {
 		content.hidden = expanded;
 
 		[ wrap, content ].forEach( function ( el ) {
-			if ( el ) {
-				el.classList.toggle( 'sh-show', ! expanded );
-				el.classList.toggle( 'sh-hide', expanded );
-			}
+			el.classList.toggle( 'sh-show', ! expanded );
+			el.classList.toggle( 'sh-hide', expanded );
 		} );
 
 		[ expanded ? 'sh-link:less' : 'sh-link:more', 'sh-link:toggle' ].forEach( function ( name ) {
