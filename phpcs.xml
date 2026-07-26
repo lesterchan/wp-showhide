@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<ruleset name="WP-ShowHide">
+	<description>WordPress Coding Standards for WP-ShowHide.</description>
+
+	<file>.</file>
+
+	<!-- WPCS has no JavaScript sniffs; never let PHPCS touch .js. -->
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<!-- Scanning these makes the CI runner run out of memory. -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+
+	<rule ref="WordPress"/>
+
+	<config name="text_domain" value="wp-showhide"/>
+	<config name="minimum_wp_version" value="6.0"/>
+
+	<!-- The tests assert on the plugin's own markup, so they must not escape it. -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!--
+		A test method's name is its documentation - test_repeating_a_type_does_
+		not_produce_duplicate_ids() gains nothing from a docblock repeating it.
+		Required everywhere else.
+	-->
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.ShortNotCapital">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!--
+		Test files are named test-*.php by WordPress convention rather than
+		class-*.php; the coding standard excepts test classes from that rule.
+	-->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- DOMDocument's own property names (nodeName, tagName) are not ours to rename. -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+
+	<!--
+		The metadata tests read the plugin's own source files off local disk to
+		assert on headers and the changelog. The sniff's advice is to use
+		wp_remote_get() for remote URLs; there is no remote URL here, and no
+		WordPress API that reads a repo file as text.
+	-->
+	<rule ref="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+</ruleset>

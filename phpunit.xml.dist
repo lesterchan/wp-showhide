@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	convertDeprecationsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite name="wp-showhide">
+			<directory suffix=".php">./tests/</directory>
+			<exclude>./tests/bootstrap.php</exclude>
+			<exclude>./tests/helper-source.php</exclude>
+			<exclude>./tests/index.php</exclude>
+		</testsuite>
+	</testsuites>
+</phpunit>
