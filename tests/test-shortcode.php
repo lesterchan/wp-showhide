@@ -181,6 +181,40 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Everything the toggle script reads off the markup.
+	 *
+	 * The JavaScript suite builds its fixtures from this same shape, so this
+	 * test is the join between the two halves: drop an attribute here and the
+	 * PHP side fails, change what the script expects and the JS side fails.
+	 */
+	public function test_markup_carries_every_hook_the_script_reads() {
+		$html  = $this->render( '[showhide]one two[/showhide]' );
+		$xpath = showhide_test_xpath( $html );
+
+		// The script delegates off .sh-toggle and walks up to .sh-link.
+		$this->assertSame( 1, $xpath->query( '//button[contains(@class,"sh-toggle")]' )->length );
+		$this->assertSame( 1, $xpath->query( '//div[contains(@class,"sh-link")]//button[contains(@class,"sh-toggle")]' )->length );
+
+		// It reads these four attributes off the button, by name.
+		foreach ( array( 'aria-expanded', 'aria-controls', 'data-sh-more', 'data-sh-less' ) as $attribute ) {
+			$this->assertNotNull(
+				showhide_test_attr( $html, '//button', $attribute ),
+				$attribute . ' is what the toggle script reads; it cannot be dropped.'
+			);
+		}
+
+		// And resolves aria-controls with getElementById.
+		$this->assertSame(
+			1,
+			$xpath->query( '//div[@id="' . showhide_test_attr( $html, '//button', 'aria-controls' ) . '"]' )->length
+		);
+
+		// It flips exactly one of these two classes on each element.
+		$this->assertStringContainsString( 'sh-hide', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringNotContainsString( 'sh-show', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+	}
+
 	public function test_toggle_is_a_button_and_not_a_link() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 

@@ -36,6 +36,24 @@ jobs:
       - name: Run PHPCS
         run: $(composer global config bin-dir --absolute)/phpcs -q --report=checkstyle . | cs2pr
 
+  js:
+    name: JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - run: npm ci
+
+      # The suite reads the toggle script straight out of the PHP heredoc, so
+      # there is nothing to build and no second copy that could drift.
+      - name: Run the toggle tests
+        run: npm test
+
   phpunit:
     name: PHPUnit (WP ${{ matrix.wordpress }}, PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
