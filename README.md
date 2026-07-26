@@ -9,10 +9,10 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.
+Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a button.
 
 ## Description
-By default the content is hidden and user will have to click on the "Show Content" link to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
+By default the content is hidden and user will have to click on the "Show Content" button to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
 
 ### Usage
 1. By default, content within the showhide shortcode will be hidden.
@@ -129,7 +129,8 @@ The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a bre
 	
 ## Upgrade Notice
 
-N/A
+### 2.1.0
+Posts, shortcode attributes and the generated HTML are unchanged, so nothing needs editing. One thing to check if you maintain the theme: `remove_action( 'wp_enqueue_scripts', 'showhide_scripts' )` no longer removes anything, because the callback is now a class method. Use `wp_dequeue_style( 'wp-showhide' )` instead. Requires WordPress 6.0 and PHP 7.4.
 
 ## Screenshots
 
