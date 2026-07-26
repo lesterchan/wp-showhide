@@ -99,6 +99,45 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The pre-3.0.0 globals a theme might still be calling.
+	 *
+	 * @return array<int, array{0: string}>
+	 */
+	public function removed_functions() {
+		return array(
+			array( 'showhide_scripts' ),
+			array( 'showhide_js' ),
+			array( 'showhide_shortcode' ),
+			// Removed back in 2.0.0, and it must not come back either.
+			array( 'showhide_toggle' ),
+		);
+	}
+
+	/**
+	 * Removed in 3.0.0, and removed completely: no shim, no leftover
+	 * definition, and nothing in the plugin still calling them.
+	 *
+	 * @dataProvider removed_functions
+	 *
+	 * @param string $function_name Name of the removed global.
+	 */
+	public function test_the_old_global_functions_are_gone( $function_name ) {
+		$this->assertFalse( function_exists( $function_name ), $function_name . '() was removed in 3.0.0.' );
+		$this->assertStringNotContainsString( $function_name . '(', showhide_test_source_code() );
+	}
+
+	/**
+	 * The plugin registers itself, so nothing is hooked by the old names.
+	 */
+	public function test_nothing_is_hooked_by_a_removed_function_name() {
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', 'showhide_scripts' ) );
+		$this->assertSame(
+			array( ShowHide::get_instance(), 'shortcode' ),
+			$GLOBALS['shortcode_tags']['showhide']
+		);
+	}
+
+	/**
 	 * The main file boots the plugin and holds no logic of its own.
 	 */
 	public function test_main_file_declares_no_functions_or_classes() {

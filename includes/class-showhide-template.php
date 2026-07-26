@@ -120,14 +120,14 @@ class ShowHide_Template {
 	 */
 	public static function script() {
 		return <<<'JS'
-( function () {
-	document.addEventListener( 'click', function ( e ) {
-		var button = e.target.closest ? e.target.closest( '.sh-toggle' ) : null;
+( function() {
+	document.addEventListener( 'click', function( e ) {
+		const button = e.target.closest ? e.target.closest( '.sh-toggle' ) : null;
 		if ( ! button ) {
 			return;
 		}
 
-		var wrap = button.closest( '.sh-link' ),
+		const wrap = button.closest( '.sh-link' ),
 			content = document.getElementById( button.getAttribute( 'aria-controls' ) ),
 			expanded = button.getAttribute( 'aria-expanded' ) === 'true';
 
@@ -139,12 +139,12 @@ class ShowHide_Template {
 		button.textContent = expanded ? button.dataset.shMore : button.dataset.shLess;
 		content.hidden = expanded;
 
-		[ wrap, content ].forEach( function ( el ) {
+		[ wrap, content ].forEach( function( el ) {
 			el.classList.toggle( 'sh-show', ! expanded );
 			el.classList.toggle( 'sh-hide', expanded );
 		} );
 
-		[ expanded ? 'sh-link:less' : 'sh-link:more', 'sh-link:toggle' ].forEach( function ( name ) {
+		[ expanded ? 'sh-link:less' : 'sh-link:more', 'sh-link:toggle' ].forEach( function( name ) {
 			wrap.dispatchEvent( new CustomEvent( name, { bubbles: true } ) );
 		} );
 	} );

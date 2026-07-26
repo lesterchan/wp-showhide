@@ -49,8 +49,14 @@ jobs:
 
       - run: npm ci
 
-      # The suite reads the toggle script straight out of the PHP heredoc, so
-      # there is nothing to build and no second copy that could drift.
+      # The plugin's own script is a heredoc inside class-showhide-template.php
+      # rather than a .js file, so `eslint .` cannot see it. bin/lint-js.mjs
+      # extracts it and lints the text alongside the real sources.
+      - name: Lint
+        run: npm run lint:js
+
+      # The suite reads that same heredoc, so there is nothing to build and no
+      # second copy that could drift.
       - name: Run the toggle tests
         run: npm test
 

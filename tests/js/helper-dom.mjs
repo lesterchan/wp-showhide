@@ -25,7 +25,7 @@ export function toggleScript() {
 	if ( ! match ) {
 		throw new Error(
 			'Could not find the JS heredoc in class-showhide-template.php. ' +
-			'If the script moved, update toggleScript() -- do not paste a copy in here.'
+			'If the script moved, update toggleScript() -- do not paste a copy in here.',
 		);
 	}
 
@@ -85,7 +85,7 @@ export function block( {
 export function page( body ) {
 	const dom = new JSDOM(
 		`<!doctype html><html><body>${ body }<script>${ toggleScript() }</script></body></html>`,
-		{ runScripts: 'dangerously' }
+		{ runScripts: 'dangerously' },
 	);
 
 	const { window } = dom;
@@ -128,7 +128,7 @@ export function page( body ) {
 	};
 
 	const click = ( selector ) => document.querySelector( selector ).dispatchEvent(
-		new window.MouseEvent( 'click', { bubbles: true } )
+		new window.MouseEvent( 'click', { bubbles: true } ),
 	);
 
 	return { window, document, state, recordEvents, click };

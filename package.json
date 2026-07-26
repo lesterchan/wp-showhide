@@ -1,6 +1,6 @@
 {
 	"name": "wp-showhide",
-	"version": "2.1.0",
+	"version": "3.0.0",
 	"description": "Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a button.",
 	"private": true,
 	"license": "GPL-2.0-or-later",
@@ -9,9 +9,14 @@
 		"url": "git+https://github.com/lesterchan/wp-showhide.git"
 	},
 	"scripts": {
-		"test": "node --test tests/js/*.test.mjs"
+		"test": "node --test tests/js/*.test.mjs",
+		"lint:js": "node bin/lint-js.mjs",
+		"lint:js:fix": "node bin/lint-js.mjs --fix"
 	},
 	"devDependencies": {
+		"@wordpress/eslint-plugin": "^25.7.0",
+		"eslint": "^9.39.5",
+		"globals": "^17.8.0",
 		"jsdom": "^29.1.1"
 	}
 }

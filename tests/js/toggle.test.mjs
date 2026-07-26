@@ -86,7 +86,7 @@ test( 'the three custom events fire on .sh-link and bubble', () => {
 
 test( 'blocks toggle independently of one another', () => {
 	const { state, click } = page(
-		block( { type: 'alpha', id: 7 } ) + block( { type: 'beta', id: 7 } )
+		block( { type: 'alpha', id: 7 } ) + block( { type: 'beta', id: 7 } ),
 	);
 
 	click( '#alpha-link-7 .sh-toggle' );
@@ -123,7 +123,7 @@ test( 'a toggle with no .sh-link wrapper is ignored rather than throwing', () =>
 	const { document, state, click } = page(
 		'<button type="button" class="sh-toggle" aria-expanded="false" ' +
 		'aria-controls="orphan-content" data-sh-more="More" data-sh-less="Less">More</button>' +
-		'<div id="orphan-content" class="sh-content" hidden>Content</div>'
+		'<div id="orphan-content" class="sh-content" hidden>Content</div>',
 	);
 
 	click( '.sh-toggle' );
@@ -138,7 +138,7 @@ test( 'a toggle pointing at a missing content element is ignored rather than thr
 		'<div id="x-link-1" class="sh-link sh-hide">' +
 		'<button type="button" class="sh-toggle" aria-expanded="false" ' +
 		'aria-controls="does-not-exist" data-sh-more="More" data-sh-less="Less">More</button>' +
-		'</div>'
+		'</div>',
 	);
 
 	click( '.sh-toggle' );
@@ -178,7 +178,7 @@ test( 'sh-show and sh-hide stay mutually exclusive on both elements', () => {
 		assert.equal(
 			linkClass.includes( 'sh-show' ),
 			contentClass.includes( 'sh-show' ),
-			'the wrapper and the content must agree'
+			'the wrapper and the content must agree',
 		);
 	}
 } );

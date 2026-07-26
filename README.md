@@ -4,7 +4,7 @@ Donate link: https://lesterchan.net/site/donation/
 Tags: show, hide, toggle, visibility, press release  
 Requires at least: 6.0  
 Tested up to: 7.0  
-Stable tag: 2.1.0  
+Stable tag: 3.0.0  
 Requires PHP: 7.4  
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -58,17 +58,16 @@ By default the content is hidden and user will have to click on the "Show Conten
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
 ## Breaking Changes
-**Version 2.1.0** moves the plugin's functions into classes. The shortcode, its attributes and the generated HTML are all unchanged, so posts, CSS and JavaScript need no editing. One thing does change for themes:
+**Version 3.0.0** moves the plugin's functions into classes. The shortcode, its attributes and the generated HTML are all unchanged, so **posts, CSS and JavaScript need no editing**. Themes that called the plugin's PHP directly do:
 
-* **`remove_action( 'wp_enqueue_scripts', 'showhide_scripts' )` no longer removes anything.** The callback is now `ShowHide::register_assets()`, so there is no function of that name left on the hook. The supported way to drop the plugin's stylesheet has always been to dequeue it:
+* **`showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` have been removed.** They were internals that happened to live in the global namespace. Calling one now raises a fatal error. Their replacements are `ShowHide::register_assets()`, `ShowHide_Template::script()` and `ShowHide::shortcode()`, but note that none of them are needed in normal use — the plugin wires itself up.
+* **`remove_action( 'wp_enqueue_scripts', 'showhide_scripts' )` no longer removes anything**, for the same reason. To drop the plugin's stylesheet, dequeue it instead:
 
 ```
 add_action( 'wp_enqueue_scripts', function () {
 	wp_dequeue_style( 'wp-showhide' );
 }, 20 );
 ```
-
-* `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` themselves still exist and still work. They forward to the classes and emit a deprecation notice when `WP_DEBUG` is on.
 
 **Version 2.0.0** rewrites the front-end JavaScript. The shortcode and its attributes are unchanged, so your posts do not need editing — but the generated HTML is different, so **custom CSS and JavaScript may need updating**.
 
@@ -83,10 +82,11 @@ add_action( 'wp_enqueue_scripts', function () {
 The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a breaking change — they still fire on the `.sh-link` element and still bubble, so existing `jQuery( ... ).on( 'sh-link:toggle', ... )` handlers keep working.
 
 ## Changelog
-### 2.1.0
-* NEW: Restructured into `includes/`, with the old procedural functions kept as working deprecated shims.
+### 3.0.0
+* NEW: Restructured into `includes/`, behind a `ShowHide` and a `ShowHide_Template` class.
 * FIXED: `hidden="No"` left the content collapsed instead of expanding it. The attribute is matched case insensitively now, so any spelling of `no` works.
 * FIXED: Requesting `wp-showhide.php` directly ran it outside WordPress instead of exiting.
+* Removed: The `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` global functions. They were internals; the plugin registers its own shortcode and assets.
 * CHANGED: Requires WordPress 6.0 and PHP 7.4.
 
 ### 2.0.0
@@ -129,8 +129,8 @@ The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a bre
 	
 ## Upgrade Notice
 
-### 2.1.0
-Posts, shortcode attributes and the generated HTML are unchanged, so nothing needs editing. One thing to check if you maintain the theme: `remove_action( 'wp_enqueue_scripts', 'showhide_scripts' )` no longer removes anything, because the callback is now a class method. Use `wp_dequeue_style( 'wp-showhide' )` instead. Requires WordPress 6.0 and PHP 7.4.
+### 3.0.0
+Posts, shortcode attributes and the generated HTML are unchanged, so your content needs no editing. Check your theme before updating: the `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` functions have been removed, so a theme that calls one — or that unhooks `showhide_scripts` to suppress the stylesheet — will fatal. Use `wp_dequeue_style( 'wp-showhide' )` instead. Requires WordPress 6.0 and PHP 7.4.
 
 ## Screenshots
 
