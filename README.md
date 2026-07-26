@@ -4,7 +4,7 @@ Donate link: https://lesterchan.net/site/donation/
 Tags: show, hide, toggle, visibility, press release  
 Requires at least: 6.0  
 Tested up to: 7.0  
-Stable tag: 2.0.0  
+Stable tag: 2.1.0  
 Requires PHP: 7.4  
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -58,7 +58,19 @@ By default the content is hidden and user will have to click on the "Show Conten
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
 ## Breaking Changes
-Version 2.0.0 rewrites the front-end JavaScript. The shortcode and its attributes are unchanged, so your posts do not need editing — but the generated HTML is different, so **custom CSS and JavaScript may need updating**.
+**Version 2.1.0** moves the plugin's functions into classes. The shortcode, its attributes and the generated HTML are all unchanged, so posts, CSS and JavaScript need no editing. One thing does change for themes:
+
+* **`remove_action( 'wp_enqueue_scripts', 'showhide_scripts' )` no longer removes anything.** The callback is now `ShowHide::register_assets()`, so there is no function of that name left on the hook. The supported way to drop the plugin's stylesheet has always been to dequeue it:
+
+```
+add_action( 'wp_enqueue_scripts', function () {
+	wp_dequeue_style( 'wp-showhide' );
+}, 20 );
+```
+
+* `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` themselves still exist and still work. They forward to the classes and emit a deprecation notice when `WP_DEBUG` is on.
+
+**Version 2.0.0** rewrites the front-end JavaScript. The shortcode and its attributes are unchanged, so your posts do not need editing — but the generated HTML is different, so **custom CSS and JavaScript may need updating**.
 
 * **The toggle is now a `<button class="sh-toggle">` instead of `<a href="#">`.** CSS targeting `.sh-link A` must become `.sh-link .sh-toggle`. The plugin ships a small inline style so the button still renders as a plain text link rather than a native button.
 * **The inner `<span id="{type}-toggle-{post_id}">` has been removed.** The label now sits directly on the button, so anything targeting that ID should target `.sh-toggle` instead.
@@ -71,6 +83,12 @@ Version 2.0.0 rewrites the front-end JavaScript. The shortcode and its attribute
 The `sh-link:more`, `sh-link:less` and `sh-link:toggle` events are **not** a breaking change — they still fire on the `.sh-link` element and still bubble, so existing `jQuery( ... ).on( 'sh-link:toggle', ... )` handlers keep working.
 
 ## Changelog
+### 2.1.0
+* NEW: Restructured into `includes/`, with the old procedural functions kept as working deprecated shims.
+* FIXED: `hidden="No"` left the content collapsed instead of expanding it. The attribute is matched case insensitively now, so any spelling of `no` works.
+* FIXED: Requesting `wp-showhide.php` directly ran it outside WordPress instead of exiting.
+* CHANGED: Requires WordPress 6.0 and PHP 7.4.
+
 ### 2.0.0
 * New: WordPress 7.0
 * New: Rewritten in vanilla JavaScript, jQuery is no longer required
