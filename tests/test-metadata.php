@@ -67,6 +67,16 @@ class Test_ShowHide_Metadata extends WP_UnitTestCase {
 		$this->assertSame( $this->header( 'Version' ), $this->readme( 'Stable tag' ) );
 	}
 
+	public function test_version_constant_matches_the_plugin_header() {
+		$this->assertTrue( defined( 'WP_SHOWHIDE_VERSION' ) );
+		$this->assertSame( $this->header( 'Version' ), WP_SHOWHIDE_VERSION );
+	}
+
+	public function test_main_file_constant_points_at_the_plugin() {
+		$this->assertTrue( defined( 'WP_SHOWHIDE_MAIN_FILE' ) );
+		$this->assertSame( realpath( $this->plugin_file ), realpath( WP_SHOWHIDE_MAIN_FILE ) );
+	}
+
 	public function test_a_changelog_section_exists_for_this_version() {
 		$this->assertMatchesRegularExpression(
 			'/^### ' . preg_quote( $this->header( 'Version' ), '/' ) . '\s*$/m',

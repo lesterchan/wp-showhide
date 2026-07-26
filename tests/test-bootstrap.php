@@ -80,6 +80,34 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 		$this->assertSame( array( 'index.php', 'wp-showhide.php' ), $root );
 	}
 
+	public function test_every_class_is_loaded() {
+		$this->assertTrue( class_exists( 'ShowHide' ) );
+		$this->assertTrue( class_exists( 'ShowHide_Template' ) );
+	}
+
+	public function test_get_instance_is_a_singleton() {
+		$this->assertSame( ShowHide::get_instance(), ShowHide::get_instance() );
+	}
+
+	/**
+	 * The plugin must not prefix with WP_, which core reserves.
+	 */
+	public function test_classes_are_not_prefixed_with_wp() {
+		foreach ( array( 'ShowHide', 'ShowHide_Template' ) as $class ) {
+			$this->assertStringStartsNotWith( 'WP_', $class );
+		}
+	}
+
+	/**
+	 * The main file boots the plugin and holds no logic of its own.
+	 */
+	public function test_main_file_declares_no_functions_or_classes() {
+		$code = php_strip_whitespace( dirname( __DIR__ ) . '/wp-showhide.php' );
+
+		$this->assertDoesNotMatchRegularExpression( '/\bfunction\s+\w+\s*\(/', $code );
+		$this->assertDoesNotMatchRegularExpression( '/\bclass\s+\w+/', $code );
+	}
+
 	/**
 	 * Since WordPress 6.7 an early textdomain load triggers _doing_it_wrong,
 	 * and WordPress.org-hosted plugins have been served translations
