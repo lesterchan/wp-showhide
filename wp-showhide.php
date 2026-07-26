@@ -131,8 +131,10 @@ function showhide_shortcode( $atts, $content = null ) {
 	$more_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['more_text'] );
 	$less_text = str_replace( array( '%1$s', '%s' ), $word_count, $attributes['less_text'] );
 
-	// Determine whether to show or hide the press release.
-	$expanded     = ( 'no' === $attributes['hidden'] );
+	// Determine whether to show or hide the press release. The comparison is
+	// case insensitive because the attribute is hand-typed prose, and hidden="No"
+	// used to silently do the opposite of what the author asked for.
+	$expanded     = ( 'no' === strtolower( trim( $attributes['hidden'] ) ) );
 	$hidden_class = $expanded ? 'sh-show' : 'sh-hide';
 
 	// Only loaded on the pages that actually use the shortcode.

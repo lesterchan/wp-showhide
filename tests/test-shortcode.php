@@ -69,6 +69,58 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Spellings of "no" a post author will reasonably type.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function spellings_of_no() {
+		return array(
+			'lower case' => array( 'no' ),
+			'title case' => array( 'No' ),
+			'upper case' => array( 'NO' ),
+			'padded'     => array( ' no ' ),
+		);
+	}
+
+	/**
+	 * @dataProvider spellings_of_no
+	 *
+	 * @param string $hidden The hidden attribute value.
+	 */
+	public function test_hidden_no_is_recognised_whatever_its_casing( $hidden ) {
+		$html = $this->render( '[showhide hidden="' . $hidden . '"]Hello world[/showhide]' );
+
+		$this->assertSame( 'true', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+	}
+
+	/**
+	 * Only "no" opens the block. Everything else -- including the default
+	 * "yes", a typo, and an empty value -- leaves it collapsed.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public function spellings_that_are_not_no() {
+		return array(
+			'yes'   => array( 'yes' ),
+			'empty' => array( '' ),
+			'nope'  => array( 'nope' ),
+			'false' => array( 'false' ),
+			'zero'  => array( '0' ),
+		);
+	}
+
+	/**
+	 * @dataProvider spellings_that_are_not_no
+	 *
+	 * @param string $hidden The hidden attribute value.
+	 */
+	public function test_anything_other_than_no_stays_hidden( $hidden ) {
+		$html = $this->render( '[showhide hidden="' . $hidden . '"]Hello world[/showhide]' );
+
+		$this->assertSame( 'false', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+	}
+
+	/**
 	 * Expanded blocks open on the "less" label, collapsed ones on "more".
 	 */
 	public function test_initial_label_matches_the_initial_state() {
