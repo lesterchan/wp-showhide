@@ -156,6 +156,44 @@ class Test_ShowHide_Metadata extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Markdown needs two trailing spaces to keep a line break.
+	 *
+	 * Without them the header collapses into a paragraph, which is how
+	 * "License: GPLv2 or later" ended up rendered on the same line as the
+	 * License URI below it. Only the last field is exempt: it is followed by a
+	 * blank line, which breaks the line on its own.
+	 */
+	public function test_every_readme_header_line_keeps_its_line_break() {
+		$lines = explode( "\n", file_get_contents( $this->readme_file ) );
+
+		// The block runs from under the "# WP-ShowHide" heading to the first
+		// blank line.
+		$header = array();
+
+		foreach ( array_slice( $lines, 1 ) as $line ) {
+			if ( '' === trim( $line ) ) {
+				break;
+			}
+
+			$header[] = $line;
+		}
+
+		$this->assertCount( 9, $header, 'the readme header should hold nine fields' );
+
+		$last = array_pop( $header );
+
+		foreach ( $header as $line ) {
+			$this->assertStringEndsWith(
+				'  ',
+				$line,
+				'"' . trim( $line ) . '" needs two trailing spaces or it runs into the next field.'
+			);
+		}
+
+		$this->assertSame( rtrim( $last ), $last, 'the last field needs no trailing spaces.' );
+	}
+
 	public function test_canonical_lesterchan_urls() {
 		$this->assertSame( 'https://lesterchan.net/portfolio/programming/php/', $this->header( 'Plugin URI' ) );
 		$this->assertSame( 'https://lesterchan.net', $this->header( 'Author URI' ) );
