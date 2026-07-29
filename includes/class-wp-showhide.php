@@ -36,6 +36,8 @@ class WP_ShowHide {
 	 * Register hooks.
 	 */
 	private function __construct() {
+		WP_ShowHide_Options::register();
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_shortcode( 'showhide', array( $this, 'shortcode' ) );
 	}

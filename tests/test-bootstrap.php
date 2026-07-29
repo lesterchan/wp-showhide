@@ -83,6 +83,7 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	public function test_every_class_is_loaded() {
 		$this->assertTrue( class_exists( 'WP_ShowHide' ) );
 		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ) );
+		$this->assertTrue( class_exists( 'WP_ShowHide_Options' ) );
 	}
 
 	public function test_get_instance_is_a_singleton() {
@@ -94,7 +95,7 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	 * declares can ever collide with another plugin's class of the same noun.
 	 */
 	public function test_every_class_carries_the_plugin_prefix() {
-		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template' ) as $class ) {
+		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template', 'WP_ShowHide_Options' ) as $class ) {
 			$this->assertStringStartsWith( 'WP_ShowHide', $class );
 		}
 	}
