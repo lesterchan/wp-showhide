@@ -11,33 +11,7 @@
 /**
  * Covers the plugin end to end through WordPress's own pipeline.
  */
-class Test_ShowHide_Integration extends WP_UnitTestCase {
-
-	/**
-	 * Post the shortcode renders against.
-	 *
-	 * @var int
-	 */
-	protected $post_id;
-
-	public function set_up() {
-		parent::set_up();
-
-		$this->post_id   = self::factory()->post->create();
-		$GLOBALS['post'] = get_post( $this->post_id );
-
-		// A fresh registry per test: enqueueing is sticky for the whole
-		// request, so one test would otherwise satisfy the next test's
-		// assertion that nothing was enqueued.
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
-		$GLOBALS['wp_styles']  = new WP_Styles();
-	}
-
-	public function tear_down() {
-		unset( $GLOBALS['post'] );
-
-		parent::tear_down();
-	}
+class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 
 	/**
 	 * Render post content the way a theme does.
@@ -61,11 +35,11 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 
 		$this->assertSame(
 			'pressrelease-link-' . $this->post_id,
-			showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' )
+			wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' )
 		);
 		$this->assertSame(
 			'pressrelease-content-' . $this->post_id,
-			showhide_test_attr( $html, '//button', 'aria-controls' )
+			wp_showhide_test_attr( $html, '//button', 'aria-controls' )
 		);
 		$this->assertStringContainsString( 'Intro paragraph.', $html );
 		$this->assertStringContainsString( 'Outro paragraph.', $html );
@@ -144,7 +118,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 
 		$ids = array();
 
-		foreach ( showhide_test_xpath( $html )->query( '//div[@id]' ) as $node ) {
+		foreach ( wp_showhide_test_xpath( $html )->query( '//div[@id]' ) as $node ) {
 			$ids[] = $node->getAttribute( 'id' );
 		}
 
@@ -165,8 +139,8 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 		$GLOBALS['post'] = get_post( $other_id );
 		$second          = $this->the_content( '[showhide type="shared"]one two[/showhide]' );
 
-		$this->assertSame( 'shared-link-' . $this->post_id, showhide_test_attr( $first, '//div[contains(@class,"sh-link")]', 'id' ) );
-		$this->assertSame( 'shared-link-' . $other_id, showhide_test_attr( $second, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'shared-link-' . $this->post_id, wp_showhide_test_attr( $first, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'shared-link-' . $other_id, wp_showhide_test_attr( $second, '//div[contains(@class,"sh-link")]', 'id' ) );
 	}
 
 	/**
@@ -176,7 +150,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 	public function test_a_label_without_a_placeholder_is_left_alone() {
 		$html = $this->the_content( '[showhide more_text="Read on" less_text="Enough"]one two[/showhide]' );
 
-		$this->assertSame( 'Read on', showhide_test_attr( $html, '//button', 'data-sh-more' ) );
-		$this->assertSame( 'Enough', showhide_test_attr( $html, '//button', 'data-sh-less' ) );
+		$this->assertSame( 'Read on', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Enough', wp_showhide_test_attr( $html, '//button', 'data-sh-less' ) );
 	}
 }

@@ -8,34 +8,20 @@
 /**
  * Covers registration and conditional enqueueing of the assets.
  */
-class Test_ShowHide_Assets extends WP_UnitTestCase {
+class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 
 	/**
-	 * Post the shortcode renders against.
+	 * Fire the hook the plugin registers its assets on.
 	 *
-	 * @var int
+	 * Everything in this file is about what that hook left behind, so running
+	 * it once here keeps it out of every test.
+	 *
+	 * @return void
 	 */
-	protected $post_id;
-
 	public function set_up() {
 		parent::set_up();
 
-		$this->post_id   = self::factory()->post->create();
-		$GLOBALS['post'] = get_post( $this->post_id );
-
-		// A fresh registry per test: enqueueing is sticky for the whole
-		// request, so one test's shortcode would otherwise satisfy the next
-		// test's assertion that nothing was enqueued.
-		$GLOBALS['wp_scripts'] = new WP_Scripts();
-		$GLOBALS['wp_styles']  = new WP_Styles();
-
 		do_action( 'wp_enqueue_scripts' );
-	}
-
-	public function tear_down() {
-		unset( $GLOBALS['post'] );
-
-		parent::tear_down();
 	}
 
 	public function test_script_and_style_are_registered() {

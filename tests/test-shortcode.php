@@ -11,40 +11,7 @@
 /**
  * Covers the rendered markup of the [showhide] shortcode.
  */
-class Test_ShowHide_Shortcode extends WP_UnitTestCase {
-
-	/**
-	 * Post the shortcode renders against.
-	 *
-	 * @var int
-	 */
-	protected $post_id;
-
-	public function set_up() {
-		parent::set_up();
-
-		$this->post_id   = self::factory()->post->create();
-		$GLOBALS['post'] = get_post( $this->post_id );
-	}
-
-	public function tear_down() {
-		unset( $GLOBALS['post'] );
-
-		parent::tear_down();
-	}
-
-	/**
-	 * Render a shortcode string through the full shortcode pipeline.
-	 *
-	 * Goes through do_shortcode() rather than calling the callback directly,
-	 * so the attribute parsing and nesting behaviour is exercised too.
-	 *
-	 * @param string $shortcode Shortcode text.
-	 * @return string Rendered markup.
-	 */
-	protected function render( $shortcode ) {
-		return do_shortcode( $shortcode );
-	}
+class WP_ShowHide_Shortcode_Test extends WP_ShowHide_TestCase {
 
 	public function test_shortcode_is_registered() {
 		$this->assertTrue( shortcode_exists( 'showhide' ) );
@@ -53,19 +20,19 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_default_render_is_hidden() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
-		$this->assertSame( 'false', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
-		$this->assertNotNull( showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
-		$this->assertStringContainsString( 'sh-hide', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
-		$this->assertStringContainsString( 'sh-hide', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
+		$this->assertSame( 'false', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+		$this->assertNotNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
+		$this->assertStringContainsString( 'sh-hide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'sh-hide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
 
 	public function test_hidden_no_renders_expanded() {
 		$html = $this->render( '[showhide hidden="no"]Hello world[/showhide]' );
 
-		$this->assertSame( 'true', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
-		$this->assertNull( showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
-		$this->assertStringContainsString( 'sh-show', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
-		$this->assertStringContainsString( 'sh-show', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
+		$this->assertSame( 'true', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
+		$this->assertStringContainsString( 'sh-show', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'sh-show', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
 
 	/**
@@ -90,7 +57,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_hidden_no_is_recognised_whatever_its_casing( $hidden ) {
 		$html = $this->render( '[showhide hidden="' . $hidden . '"]Hello world[/showhide]' );
 
-		$this->assertSame( 'true', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+		$this->assertSame( 'true', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
 	}
 
 	/**
@@ -117,7 +84,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_anything_other_than_no_stays_hidden( $hidden ) {
 		$html = $this->render( '[showhide hidden="' . $hidden . '"]Hello world[/showhide]' );
 
-		$this->assertSame( 'false', showhide_test_attr( $html, '//button', 'aria-expanded' ) );
+		$this->assertSame( 'false', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
 	}
 
 	/**
@@ -139,24 +106,24 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_both_elements_carry_the_stylesheet_root_class() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
-		$this->assertStringContainsString( 'wp-showhide', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
-		$this->assertStringContainsString( 'wp-showhide', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
+		$this->assertStringContainsString( 'wp-showhide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'wp-showhide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
 
 	public function test_default_classes_and_ids_use_the_default_type() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
-		$this->assertSame( 'pressrelease-link-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
-		$this->assertSame( 'pressrelease-content-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
-		$this->assertStringContainsString( 'pressrelease-link', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
-		$this->assertStringContainsString( 'pressrelease-content', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
+		$this->assertSame( 'pressrelease-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'pressrelease-content-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
+		$this->assertStringContainsString( 'pressrelease-link', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'pressrelease-content', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
 
 	public function test_custom_type_drives_the_classes_and_ids() {
 		$html = $this->render( '[showhide type="links"]Hello world[/showhide]' );
 
-		$this->assertSame( 'links-link-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
-		$this->assertSame( 'links-content-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
+		$this->assertSame( 'links-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'links-content-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
 	}
 
 	/**
@@ -171,13 +138,13 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_type_is_restricted_to_id_safe_characters() {
 		$html = $this->render( '[showhide type="a b&c<d>e_f-g"]Hello world[/showhide]' );
 
-		$this->assertSame( 'abcde_f-g-link-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'abcde_f-g-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
 	}
 
 	public function test_type_stripped_to_nothing_falls_back_to_the_default() {
 		$html = $this->render( '[showhide type="<<>>"]Hello world[/showhide]' );
 
-		$this->assertSame( 'pressrelease-link-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'pressrelease-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
 	}
 
 	/**
@@ -188,8 +155,8 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		$html = $this->render( '[showhide type="links"]Hello world[/showhide]' );
 
 		$this->assertSame(
-			showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ),
-			showhide_test_attr( $html, '//button', 'aria-controls' )
+			wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ),
+			wp_showhide_test_attr( $html, '//button', 'aria-controls' )
 		);
 	}
 
@@ -202,7 +169,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	 */
 	public function test_markup_carries_every_hook_the_script_reads() {
 		$html  = $this->render( '[showhide]one two[/showhide]' );
-		$xpath = showhide_test_xpath( $html );
+		$xpath = wp_showhide_test_xpath( $html );
 
 		// The script delegates off .sh-toggle and walks up to .sh-link.
 		$this->assertSame( 1, $xpath->query( '//button[contains(@class,"sh-toggle")]' )->length );
@@ -211,7 +178,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		// It reads these four attributes off the button, by name.
 		foreach ( array( 'aria-expanded', 'aria-controls', 'data-sh-more', 'data-sh-less' ) as $attribute ) {
 			$this->assertNotNull(
-				showhide_test_attr( $html, '//button', $attribute ),
+				wp_showhide_test_attr( $html, '//button', $attribute ),
 				$attribute . ' is what the toggle script reads; it cannot be dropped.'
 			);
 		}
@@ -219,19 +186,19 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		// And resolves aria-controls with getElementById.
 		$this->assertSame(
 			1,
-			$xpath->query( '//div[@id="' . showhide_test_attr( $html, '//button', 'aria-controls' ) . '"]' )->length
+			$xpath->query( '//div[@id="' . wp_showhide_test_attr( $html, '//button', 'aria-controls' ) . '"]' )->length
 		);
 
 		// It flips exactly one of these two classes on each element.
-		$this->assertStringContainsString( 'sh-hide', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
-		$this->assertStringNotContainsString( 'sh-show', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'sh-hide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringNotContainsString( 'sh-show', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
 	}
 
 	public function test_toggle_is_a_button_and_not_a_link() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
-		$this->assertSame( 'button', showhide_test_attr( $html, '//button', 'type' ) );
-		$this->assertSame( 0, showhide_test_xpath( $html )->query( '//a' )->length );
+		$this->assertSame( 'button', wp_showhide_test_attr( $html, '//button', 'type' ) );
+		$this->assertSame( 0, wp_showhide_test_xpath( $html )->query( '//a' )->length );
 	}
 
 	public function test_word_count_counts_every_run_of_whitespace() {
@@ -267,14 +234,14 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_custom_more_and_less_text() {
 		$html = $this->render( '[showhide more_text="Open (%s)" less_text="Close (%s)"]one two[/showhide]' );
 
-		$this->assertSame( 'Open (2)', showhide_test_attr( $html, '//button', 'data-sh-more' ) );
-		$this->assertSame( 'Close (2)', showhide_test_attr( $html, '//button', 'data-sh-less' ) );
+		$this->assertSame( 'Open (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Close (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-less' ) );
 	}
 
 	public function test_numbered_placeholder_is_substituted_too() {
 		$html = $this->render( '[showhide more_text="Open (%1$s)"]one two[/showhide]' );
 
-		$this->assertSame( 'Open (2)', showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Open (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
 	}
 
 	/**
@@ -284,7 +251,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	public function test_extra_format_specifiers_do_not_fatal() {
 		$html = $this->render( '[showhide more_text="Open (%s) %d %2$s %"]one two[/showhide]' );
 
-		$this->assertSame( 'Open (2) %d %2$s %', showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Open (2) %d %2$s %', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
 	}
 
 	/**
@@ -295,22 +262,22 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		$html = $this->render( '[showhide more_text="a\\\\b (%s)"]one two[/showhide]' );
 
 		$this->assertSame(
-			showhide_test_attr( $html, '//button', 'data-sh-more' ),
-			trim( showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent )
+			wp_showhide_test_attr( $html, '//button', 'data-sh-more' ),
+			trim( wp_showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent )
 		);
 	}
 
 	public function test_nested_shortcodes_are_processed() {
 		add_shortcode(
-			'showhide_test_inner',
+			'wp_showhide_test_inner',
 			static function () {
 				return 'INNER';
 			}
 		);
 
-		$html = $this->render( '[showhide]before [showhide_test_inner] after[/showhide]' );
+		$html = $this->render( '[showhide]before [wp_showhide_test_inner] after[/showhide]' );
 
-		remove_shortcode( 'showhide_test_inner' );
+		remove_shortcode( 'wp_showhide_test_inner' );
 
 		$this->assertStringContainsString( 'INNER', $html );
 	}
@@ -326,7 +293,7 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 
 		$ids = array();
 
-		foreach ( showhide_test_xpath( $html )->query( '//div[@id]' ) as $node ) {
+		foreach ( wp_showhide_test_xpath( $html )->query( '//div[@id]' ) as $node ) {
 			$ids[] = $node->getAttribute( 'id' );
 		}
 
@@ -356,8 +323,8 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 
 		$html = $this->render( '[showhide type="outside"]one two[/showhide]' );
 
-		$this->assertSame( 'outside-link-0', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
-		$this->assertSame( 'outside-content-0', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
+		$this->assertSame( 'outside-link-0', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'outside-content-0', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
 	}
 
 	public function test_empty_content_renders_a_zero_word_count() {
@@ -376,6 +343,6 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		$html = $this->render( '[showhide type="selfclosing" /]' );
 
 		$this->assertStringContainsString( '(0 More Words)', $html );
-		$this->assertSame( 'selfclosing-content-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
+		$this->assertSame( 'selfclosing-content-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'id' ) );
 	}
 }

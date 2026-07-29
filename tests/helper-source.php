@@ -2,6 +2,9 @@
 /**
  * Source-inspection helpers shared by the test cases.
  *
+ * Kept apart from helper-testcase.php because a file may declare either
+ * functions or a class, not both.
+ *
  * @package WP-ShowHide
  */
 
@@ -14,7 +17,7 @@
  *
  * @return string[] Absolute paths.
  */
-function showhide_test_source_files() {
+function wp_showhide_test_source_files() {
 	$root = dirname( __DIR__ );
 
 	return array_merge(
@@ -34,10 +37,10 @@ function showhide_test_source_files() {
  * @param string[] $skip Basenames to leave out.
  * @return string
  */
-function showhide_test_source_code( array $skip = array() ) {
+function wp_showhide_test_source_code( array $skip = array() ) {
 	$code = '';
 
-	foreach ( showhide_test_source_files() as $file ) {
+	foreach ( wp_showhide_test_source_files() as $file ) {
 		if ( in_array( basename( $file ), $skip, true ) ) {
 			continue;
 		}
@@ -46,6 +49,16 @@ function showhide_test_source_code( array $skip = array() ) {
 	}
 
 	return $code;
+}
+
+/**
+ * Read a file from the plugin root.
+ *
+ * @param string $relative Path relative to the plugin root.
+ * @return string
+ */
+function wp_showhide_test_read( $relative ) {
+	return (string) file_get_contents( dirname( __DIR__ ) . '/' . $relative );
 }
 
 /**
@@ -59,7 +72,7 @@ function showhide_test_source_code( array $skip = array() ) {
  * @param string $html Markup fragment.
  * @return DOMXPath
  */
-function showhide_test_xpath( $html ) {
+function wp_showhide_test_xpath( $html ) {
 	$doc = new DOMDocument();
 
 	// The wrapper carries no id of its own: tests count the ids in the
@@ -82,8 +95,8 @@ function showhide_test_xpath( $html ) {
  * @param string $attribute Attribute name.
  * @return string|null The value, or null when the element or attribute is absent.
  */
-function showhide_test_attr( $html, $query, $attribute ) {
-	$nodes = showhide_test_xpath( $html )->query( $query );
+function wp_showhide_test_attr( $html, $query, $attribute ) {
+	$nodes = wp_showhide_test_xpath( $html )->query( $query );
 
 	if ( ! $nodes || 0 === $nodes->length ) {
 		return null;

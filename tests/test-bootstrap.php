@@ -8,21 +8,23 @@
 /**
  * Covers the plugin layout and its direct-access guards.
  */
-class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
+class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 
 	/**
 	 * Every shipped PHP file that holds code, and so needs an ABSPATH guard.
 	 *
 	 * The index.php silence guards are excluded: they contain nothing but a
-	 * docblock, so there is no code for a direct request to reach.
+	 * docblock, so there is no code for a direct request to reach. So is
+	 * uninstall.php, which WordPress loads with ABSPATH already defined and
+	 * which therefore carries a different guard -- asserted on its own below.
 	 *
 	 * @return array<int, array{0: string}>
 	 */
 	public function guarded_files() {
 		$files = array();
 
-		foreach ( showhide_test_source_files() as $file ) {
-			if ( 'index.php' === basename( $file ) ) {
+		foreach ( wp_showhide_test_source_files() as $file ) {
+			if ( in_array( basename( $file ), array( 'index.php', 'uninstall.php' ), true ) ) {
 				continue;
 			}
 
@@ -49,23 +51,49 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Every directory that ships PHP needs a silence guard, including the ones
-	 * that never reach WordPress.org.
+	 * The six constants every plugin in this family defines, in the plugin
+	 * file and nowhere else.
+	 *
+	 * They are the one source of truth for the version, the slug and the paths,
+	 * so a class reaching for __DIR__ or hard-coding "wp-showhide" is a bug
+	 * even when it happens to work.
 	 */
-	public function test_every_php_directory_has_a_silence_guard() {
-		$root = dirname( __DIR__ );
+	public function test_the_six_php_constants_are_defined() {
+		$this->assertSame( '3.0.0', WP_SHOWHIDE_VERSION );
+		$this->assertSame( '1', WP_SHOWHIDE_DB_VERSION );
+		$this->assertSame( 'wp-showhide', WP_SHOWHIDE_SLUG );
+		$this->assertSame(
+			realpath( dirname( __DIR__ ) . '/wp-showhide.php' ),
+			realpath( WP_SHOWHIDE_MAIN_FILE )
+		);
+		$this->assertSame( realpath( dirname( __DIR__ ) ), realpath( WP_SHOWHIDE_DIR ) );
+		$this->assertStringEndsWith( '/wp-showhide/', WP_SHOWHIDE_URL );
+	}
 
-		foreach ( array( '', '/includes', '/tests', '/bin' ) as $dir ) {
-			if ( '' !== $dir && ! is_dir( $root . $dir ) ) {
-				continue;
-			}
+	/**
+	 * WordPress loads uninstall.php with the plugin inactive and ABSPATH
+	 * already defined, so its guard is the constant WordPress sets just for
+	 * that request. Running the file for any other reason would delete a live
+	 * site's row.
+	 */
+	public function test_the_uninstaller_refuses_to_run_outside_an_uninstall() {
+		$code = php_strip_whitespace( dirname( __DIR__ ) . '/uninstall.php' );
 
-			$this->assertFileExists( $root . $dir . '/index.php', $dir . ' needs an index.php silence guard.' );
-			$this->assertStringContainsString(
-				'Silence is golden',
-				file_get_contents( $root . $dir . '/index.php' )
-			);
-		}
+		$this->assertMatchesRegularExpression(
+			"/!\s*defined\(\s*'WP_UNINSTALL_PLUGIN'\s*\)/",
+			$code,
+			'uninstall.php must exit unless WordPress is really uninstalling the plugin.'
+		);
+		$this->assertMatchesRegularExpression(
+			"/delete_option\(\s*'wp_showhide_version'\s*\)/",
+			$code,
+			'The marker row is the one row there is to remove.'
+		);
+		$this->assertStringContainsString(
+			'get_sites(',
+			$code,
+			'A network install needs every site visited, not just the current one.'
+		);
 	}
 
 	/**
@@ -125,7 +153,7 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	 */
 	public function test_the_old_global_functions_are_gone( $function_name ) {
 		$this->assertFalse( function_exists( $function_name ), $function_name . '() was removed in 3.0.0.' );
-		$this->assertStringNotContainsString( $function_name . '(', showhide_test_source_code() );
+		$this->assertStringNotContainsString( $function_name . '(', wp_showhide_test_source_code() );
 	}
 
 	/**
@@ -157,16 +185,20 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	public function test_no_textdomain_is_loaded_manually() {
 		$this->assertStringNotContainsString(
 			'load_plugin_textdomain',
-			showhide_test_source_code()
+			wp_showhide_test_source_code()
 		);
 	}
 
 	/**
-	 * The plugin has no settings and no tables, but it does ship an
-	 * uninstaller: the version markers it stores have to go when the plugin is
-	 * deleted, and an uninstall.php is the only hook that runs then.
+	 * The upgrade check is the only thing the plugin does before a page is
+	 * being rendered, and it is registered from the bootstrap rather than from
+	 * an activation hook, which never runs for a plugin that was already
+	 * network-activated.
 	 */
-	public function test_the_plugin_ships_an_uninstaller() {
-		$this->assertFileExists( dirname( __DIR__ ) . '/uninstall.php' );
+	public function test_the_bootstrap_registers_the_upgrade_check() {
+		$this->assertSame(
+			10,
+			has_action( 'plugins_loaded', array( 'WP_ShowHide_Options', 'maybe_upgrade' ) )
+		);
 	}
 }

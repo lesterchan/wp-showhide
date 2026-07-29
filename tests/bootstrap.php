@@ -27,10 +27,10 @@ require_once $_tests_dir . '/includes/functions.php';
  *
  * @return void
  */
-function _showhide_manually_load_plugin() {
+function _wp_showhide_manually_load_plugin() {
 	require dirname( __DIR__ ) . '/wp-showhide.php';
 }
-tests_add_filter( 'muplugins_loaded', '_showhide_manually_load_plugin' );
+tests_add_filter( 'muplugins_loaded', '_wp_showhide_manually_load_plugin' );
 
 require $_tests_dir . '/includes/bootstrap.php';
 

@@ -11,27 +11,7 @@
 /**
  * Covers escaping of the shortcode attributes.
  */
-class Test_ShowHide_Escaping extends WP_UnitTestCase {
-
-	/**
-	 * Post the shortcode renders against.
-	 *
-	 * @var int
-	 */
-	protected $post_id;
-
-	public function set_up() {
-		parent::set_up();
-
-		$this->post_id   = self::factory()->post->create();
-		$GLOBALS['post'] = get_post( $this->post_id );
-	}
-
-	public function tear_down() {
-		unset( $GLOBALS['post'] );
-
-		parent::tear_down();
-	}
+class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 
 	/**
 	 * Payloads that reach the plugin through a double-quoted attribute.
@@ -61,12 +41,12 @@ class Test_ShowHide_Escaping extends WP_UnitTestCase {
 	public function test_more_text_cannot_break_out_of_its_attribute( $label ) {
 		$html = do_shortcode( '[showhide more_text="' . $label . '"]one two[/showhide]' );
 
-		$xpath = showhide_test_xpath( $html );
+		$xpath = wp_showhide_test_xpath( $html );
 
 		$this->assertSame( 0, $xpath->query( '//script' )->length );
 		$this->assertSame( 0, $xpath->query( '//img' )->length );
 		$this->assertSame( 1, $xpath->query( '//button' )->length );
-		$this->assertNull( showhide_test_attr( $html, '//button', 'onmouseover' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//button', 'onmouseover' ) );
 
 		// The payload survives as inert text, which is the point: it is a
 		// label. Decoded, because esc_attr() does not double-encode, so an
@@ -74,7 +54,7 @@ class Test_ShowHide_Escaping extends WP_UnitTestCase {
 		// resolves it once on the way back out.
 		$this->assertSame(
 			html_entity_decode( $label, ENT_QUOTES, 'UTF-8' ),
-			showhide_test_attr( $html, '//button', 'data-sh-more' )
+			wp_showhide_test_attr( $html, '//button', 'data-sh-more' )
 		);
 	}
 
@@ -86,14 +66,14 @@ class Test_ShowHide_Escaping extends WP_UnitTestCase {
 	public function test_less_text_cannot_break_out_of_its_attribute( $label ) {
 		$html = do_shortcode( '[showhide less_text="' . $label . '"]one two[/showhide]' );
 
-		$xpath = showhide_test_xpath( $html );
+		$xpath = wp_showhide_test_xpath( $html );
 
 		$this->assertSame( 0, $xpath->query( '//script' )->length );
 		$this->assertSame( 0, $xpath->query( '//img' )->length );
 		$this->assertSame( 1, $xpath->query( '//button' )->length );
 		$this->assertSame(
 			html_entity_decode( $label, ENT_QUOTES, 'UTF-8' ),
-			showhide_test_attr( $html, '//button', 'data-sh-less' )
+			wp_showhide_test_attr( $html, '//button', 'data-sh-less' )
 		);
 	}
 
@@ -104,11 +84,11 @@ class Test_ShowHide_Escaping extends WP_UnitTestCase {
 	public function test_type_cannot_inject_markup_or_extra_attributes() {
 		$html = do_shortcode( '[showhide type="x<img src=y> onclick=alert(1)"]one two[/showhide]' );
 
-		$xpath = showhide_test_xpath( $html );
+		$xpath = wp_showhide_test_xpath( $html );
 
 		$this->assertSame( 0, $xpath->query( '//img' )->length );
-		$this->assertNull( showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'onclick' ) );
-		$this->assertSame( 'ximgsrcyonclickalert1-link-' . $this->post_id, showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'onclick' ) );
+		$this->assertSame( 'ximgsrcyonclickalert1-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
 	}
 
 	/**
@@ -120,10 +100,10 @@ class Test_ShowHide_Escaping extends WP_UnitTestCase {
 	public function test_label_decodes_identically_in_the_text_and_the_dataset() {
 		$html = do_shortcode( '[showhide more_text="Tom &amp; Jerry (%s)"]one two[/showhide]' );
 
-		$this->assertSame( 'Tom & Jerry (2)', showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Tom & Jerry (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
 		$this->assertSame(
 			'Tom & Jerry (2)',
-			trim( showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent )
+			trim( wp_showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent )
 		);
 	}
 
