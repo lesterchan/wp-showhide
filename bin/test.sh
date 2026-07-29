@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Run the PHPUnit suite against a real WordPress install.
+# Run the PHPUnit suite against a real WordPress install, single site.
 #
 # Docker is the only prerequisite: wp-env brings up WordPress, MySQL and the
 # WordPress test library. Dev dependencies are installed INSIDE the container,
@@ -8,17 +8,14 @@
 #
 #   bash bin/test.sh                 # whole suite
 #   bash bin/test.sh --filter Escaping
-#   WP_MULTISITE=1 bash bin/test.sh  # as a network
 #
-# Override the stack with WP_ENV_PHP_VERSION / WP_ENV_CORE, exactly as CI does.
+# For the network run use bin/test-multisite.sh. Override the stack with
+# WP_ENV_PHP_VERSION / WP_ENV_CORE, exactly as CI does.
 
 set -euo pipefail
 
-# Read by the WordPress test bootstrap inside the container, so it has to be
-# forwarded into the container rather than merely exported out here.
-MULTISITE="${WP_MULTISITE:-0}"
-
 SLUG=wp-showhide
+CONFIG="${PHPUNIT_CONFIG:-phpunit.xml.dist}"
 CWD=wp-content/plugins/$SLUG
 
 cd "$(dirname "$0")/.."
@@ -30,6 +27,6 @@ echo "==> Installing dev dependencies inside the tests container"
 npx --yes @wordpress/env run tests-cli --env-cwd="$CWD" \
 	composer install --no-interaction --no-progress
 
-echo "==> Running PHPUnit (multisite=$MULTISITE)"
+echo "==> Running PHPUnit ($CONFIG)"
 npx --yes @wordpress/env run tests-cli --env-cwd="$CWD" \
-	bash -c "WP_MULTISITE=$MULTISITE vendor/bin/phpunit $*"
+	vendor/bin/phpunit -c "$CONFIG" "$@"
