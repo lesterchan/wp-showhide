@@ -131,7 +131,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 	 * for a front end toggle.
 	 */
 	public function test_assets_are_not_registered_in_the_admin() {
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( ShowHide::get_instance(), 'register_assets' ) ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( WP_ShowHide::get_instance(), 'register_assets' ) ) );
 		$this->assertFalse( wp_script_is( 'wp-showhide', 'registered' ) );
 		$this->assertFalse( wp_style_is( 'wp-showhide', 'registered' ) );
 	}

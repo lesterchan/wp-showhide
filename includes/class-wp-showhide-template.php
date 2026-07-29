@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Builds the shortcode's markup and the inline assets that go with it.
  */
-class ShowHide_Template {
+class WP_ShowHide_Template {
 
 	/**
 	 * How many times each type has been rendered for each post.

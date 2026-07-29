@@ -10,24 +10,19 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Wires the plugin's shortcode and front end assets up.
  */
-class ShowHide {
-
-	/**
-	 * Handle shared by the script and the style.
-	 */
-	const HANDLE = 'wp-showhide';
+class WP_ShowHide {
 
 	/**
 	 * Sole instance.
 	 *
-	 * @var ShowHide|null
+	 * @var WP_ShowHide|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Retrieve, creating on first call.
 	 *
-	 * @return ShowHide
+	 * @return WP_ShowHide
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -57,12 +52,12 @@ class ShowHide {
 	 * @return void
 	 */
 	public function register_assets() {
-		wp_register_script( self::HANDLE, false, array(), WP_SHOWHIDE_VERSION, true );
-		wp_add_inline_script( self::HANDLE, ShowHide_Template::script() );
+		wp_register_script( WP_SHOWHIDE_SLUG, false, array(), WP_SHOWHIDE_VERSION, true );
+		wp_add_inline_script( WP_SHOWHIDE_SLUG, WP_ShowHide_Template::script() );
 
-		wp_register_style( self::HANDLE, false, array(), WP_SHOWHIDE_VERSION );
-		wp_enqueue_style( self::HANDLE );
-		wp_add_inline_style( self::HANDLE, ShowHide_Template::style() );
+		wp_register_style( WP_SHOWHIDE_SLUG, false, array(), WP_SHOWHIDE_VERSION );
+		wp_enqueue_style( WP_SHOWHIDE_SLUG );
+		wp_add_inline_style( WP_SHOWHIDE_SLUG, WP_ShowHide_Template::style() );
 	}
 
 	/**
@@ -74,8 +69,8 @@ class ShowHide {
 	 */
 	public function shortcode( $atts, $content = null ) {
 		// Only the pages that actually use the shortcode pay for the script.
-		wp_enqueue_script( self::HANDLE );
+		wp_enqueue_script( WP_SHOWHIDE_SLUG );
 
-		return ShowHide_Template::render( $atts, $content );
+		return WP_ShowHide_Template::render( $atts, $content );
 	}
 }

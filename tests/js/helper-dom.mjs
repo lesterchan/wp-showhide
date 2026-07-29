@@ -1,7 +1,7 @@
 /**
  * Test harness for the toggle script.
  *
- * The script under test is read out of includes/class-showhide-template.php
+ * The script under test is read out of includes/class-wp-showhide-template.php
  * rather than duplicated here, so these tests run the exact string the plugin
  * ships. There is no build step and no second copy to drift.
  */
@@ -19,12 +19,12 @@ const root = join( dirname( fileURLToPath( import.meta.url ) ), '..', '..' );
  * @return {string} JavaScript source.
  */
 export function toggleScript() {
-	const php = readFileSync( join( root, 'includes', 'class-showhide-template.php' ), 'utf8' );
+	const php = readFileSync( join( root, 'includes', 'class-wp-showhide-template.php' ), 'utf8' );
 	const match = php.match( /<<<'JS'\n([\s\S]*?)\nJS;/ );
 
 	if ( ! match ) {
 		throw new Error(
-			'Could not find the JS heredoc in class-showhide-template.php. ' +
+			'Could not find the JS heredoc in class-wp-showhide-template.php. ' +
 			'If the script moved, update toggleScript() -- do not paste a copy in here.',
 		);
 	}
@@ -35,7 +35,7 @@ export function toggleScript() {
 /**
  * Markup for one [showhide] block.
  *
- * Mirrors ShowHide_Template::render(). The PHP suite pins that the real output
+ * Mirrors WP_ShowHide_Template::render(). The PHP suite pins that the real output
  * carries every attribute this depends on, so the two cannot silently diverge
  * without a test failing on one side or the other.
  *

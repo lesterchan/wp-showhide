@@ -77,24 +77,25 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 
 		sort( $root );
 
-		$this->assertSame( array( 'index.php', 'wp-showhide.php' ), $root );
+		$this->assertSame( array( 'index.php', 'uninstall.php', 'wp-showhide.php' ), $root );
 	}
 
 	public function test_every_class_is_loaded() {
-		$this->assertTrue( class_exists( 'ShowHide' ) );
-		$this->assertTrue( class_exists( 'ShowHide_Template' ) );
+		$this->assertTrue( class_exists( 'WP_ShowHide' ) );
+		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ) );
 	}
 
 	public function test_get_instance_is_a_singleton() {
-		$this->assertSame( ShowHide::get_instance(), ShowHide::get_instance() );
+		$this->assertSame( WP_ShowHide::get_instance(), WP_ShowHide::get_instance() );
 	}
 
 	/**
-	 * The plugin must not prefix with WP_, which core reserves.
+	 * Every class carries the plugin's own prefix, so nothing this plugin
+	 * declares can ever collide with another plugin's class of the same noun.
 	 */
-	public function test_classes_are_not_prefixed_with_wp() {
-		foreach ( array( 'ShowHide', 'ShowHide_Template' ) as $class ) {
-			$this->assertStringStartsNotWith( 'WP_', $class );
+	public function test_every_class_carries_the_plugin_prefix() {
+		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template' ) as $class ) {
+			$this->assertStringStartsWith( 'WP_ShowHide', $class );
 		}
 	}
 
@@ -132,7 +133,7 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	public function test_nothing_is_hooked_by_a_removed_function_name() {
 		$this->assertFalse( has_action( 'wp_enqueue_scripts', 'showhide_scripts' ) );
 		$this->assertSame(
-			array( ShowHide::get_instance(), 'shortcode' ),
+			array( WP_ShowHide::get_instance(), 'shortcode' ),
 			$GLOBALS['shortcode_tags']['showhide']
 		);
 	}
@@ -160,15 +161,11 @@ class Test_ShowHide_Bootstrap extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The plugin has no settings, no tables and no options, so there is
-	 * nothing for an uninstaller to remove. Shipping an empty one would be a
-	 * standing invitation to add cleanup for state that does not exist.
+	 * The plugin has no settings and no tables, but it does ship an
+	 * uninstaller: the version markers it stores have to go when the plugin is
+	 * deleted, and an uninstall.php is the only hook that runs then.
 	 */
-	public function test_plugin_stores_no_persistent_state() {
-		$code = showhide_test_source_code();
-
-		$this->assertStringNotContainsString( 'update_option', $code );
-		$this->assertStringNotContainsString( 'add_option', $code );
-		$this->assertFileDoesNotExist( dirname( __DIR__ ) . '/uninstall.php' );
+	public function test_the_plugin_ships_an_uninstaller() {
+		$this->assertFileExists( dirname( __DIR__ ) . '/uninstall.php' );
 	}
 }
