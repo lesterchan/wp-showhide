@@ -50,8 +50,8 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * wpautop runs at priority 10 and do_shortcode at 11, so the shortcode is
-	 * paragraph-wrapped before it is expanded. The block still has to come out
+	 * Core runs wpautop at priority 10 and do_shortcode at 11, so the shortcode
+	 * is paragraph-wrapped before it is expanded. The block still has to come out
 	 * intact and addressable.
 	 */
 	public function test_block_survives_the_the_content_filter_chain() {

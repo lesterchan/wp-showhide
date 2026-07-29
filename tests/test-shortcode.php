@@ -237,8 +237,8 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 	}
 
 	/**
-	 * wp_strip_all_tags() removes script and style *contents*, not just their
-	 * tags, so the counter must not be inflated by the code inside them.
+	 * Script and style *contents* are removed by wp_strip_all_tags(), not just
+	 * their tags, so the counter must not be inflated by the code inside them.
 	 */
 	public function test_word_count_ignores_script_and_style_contents() {
 		$html = $this->render( '[showhide]<style>a { color: red; }</style><script>var a = 1;</script>one two[/showhide]' );

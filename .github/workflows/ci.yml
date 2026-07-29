@@ -22,7 +22,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
           coverage: none
           tools: cs2pr
 
@@ -36,8 +36,9 @@ jobs:
       - name: Run PHPCS
         run: $(composer global config bin-dir --absolute)/phpcs -q --report=checkstyle . | cs2pr
 
-  js:
-    name: JavaScript
+  # NO-JS PLUGINS: delete this job AND this comment, through to `phpunit:`.
+  eslint:
+    name: JS coding standards and tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -47,34 +48,48 @@ jobs:
           node-version: "24"
           cache: npm
 
-      - run: npm ci
+      - name: Install dev dependencies
+        run: npm ci --no-fund --no-audit
 
-      # The plugin's own script is a heredoc inside class-showhide-template.php
-      # rather than a .js file, so `eslint .` cannot see it. bin/lint-js.mjs
-      # extracts it and lints the text alongside the real sources.
-      - name: Lint
+      - name: Run ESLint
         run: npm run lint:js
 
-      # The suite reads that same heredoc, so there is nothing to build and no
-      # second copy that could drift.
-      - name: Run the toggle tests
-        run: npm test
+      # vitest + jsdom, loading the plugin's scripts the way the browser does.
+      # No build step: the scripts ship to users exactly as they are in js/.
+      - name: Run JS tests
+        run: npm run test:js
 
   phpunit:
-    name: PHPUnit (WP ${{ matrix.wordpress }}, PHP ${{ matrix.php }})
+    name: PHPUnit (WP ${{ matrix.wordpress }}, PHP ${{ matrix.php }}, ${{ matrix.multisite && 'multisite' || 'single site' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # The floor and the ceiling. No multisite job: unlike the plugins that
-      # carry one, this plugin has no uninstall.php, stores no options and
-      # touches no site-scoped state, so a network run exercises the same code
-      # path twice.
       matrix:
+        # Every supported stack, in both modes. Six rows, no special cases.
+        #
+        # Multisite is not a spare wheel: uninstall.php branches on
+        # is_multisite(), and network-activated plugins are read from a site
+        # option the single-site run never touches. It runs on the FLOOR too,
+        # because that is where multisite breaks -- wp_get_sites() removed in
+        # 5.1, uninstall stopping at 100 sites, switch_to_blog() stacks left
+        # unwound, custom tables not registered with $wpdb inside a switch.
+        # Testing multisite only on latest tests it where it least likely fails.
         include:
-          - php: '7.4'
-            wordpress: '6.0'
-          - php: '8.3'
+          - php: '8.2'
+            wordpress: '6.8'
+          - php: '8.2'
+            wordpress: '6.8'
+            multisite: true
+          - php: '8.2'
             wordpress: 'latest'
+          - php: '8.2'
+            wordpress: 'latest'
+            multisite: true
+          - php: '8.5'
+            wordpress: 'latest'
+          - php: '8.5'
+            wordpress: 'latest'
+            multisite: true
     steps:
       - uses: actions/checkout@v7
 
@@ -95,7 +110,9 @@ jobs:
           npx --yes @wordpress/env run tests-cli --env-cwd=wp-content/plugins/wp-showhide \
             composer install --no-interaction --no-progress
 
+      # The multisite config sets WP_MULTISITE for the WordPress test bootstrap,
+      # so the mode is chosen by the config file rather than by the environment.
       - name: Run PHPUnit
         run: |
           npx --yes @wordpress/env run tests-cli --env-cwd=wp-content/plugins/wp-showhide \
-            vendor/bin/phpunit
+            vendor/bin/phpunit -c ${{ matrix.multisite && 'phpunit-multisite.xml.dist' || 'phpunit.xml.dist' }}

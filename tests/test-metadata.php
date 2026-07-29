@@ -224,8 +224,8 @@ class Test_ShowHide_Metadata extends WP_UnitTestCase {
 	}
 
 	/**
-	 * translate.wordpress.org builds the catalogue; a checked-in one only ever
-	 * goes stale.
+	 * The catalogue is built by translate.wordpress.org; a checked-in one only
+	 * ever goes stale.
 	 */
 	public function test_no_translation_catalogue_ships() {
 		$root = dirname( __DIR__ );

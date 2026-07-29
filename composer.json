@@ -1,6 +1,6 @@
 {
 	"name": "lesterchan/wp-showhide",
-	"description": "Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a link.",
+	"description": "Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a button.",
 	"type": "wordpress-plugin",
 	"homepage": "https://wordpress.org/plugins/wp-showhide/",
 	"license": "GPL-2.0-or-later",
@@ -11,7 +11,7 @@
 		}
 	],
 	"require": {
-		"php": ">=7.4"
+		"php": ">=8.2"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.6",
