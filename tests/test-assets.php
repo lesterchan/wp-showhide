@@ -44,11 +44,22 @@ class Test_ShowHide_Assets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Both are srcless: the script and the style are printed inline, so there
-	 * is no file to request and no 404 to serve.
+	 * The script is a real file under js/, so a browser can cache it across
+	 * pages instead of re-reading it inline with every post that toggles.
 	 */
-	public function test_neither_asset_requests_a_file() {
-		$this->assertFalse( wp_scripts()->registered['wp-showhide']->src );
+	public function test_the_script_is_the_shipped_file() {
+		$this->assertSame(
+			plugins_url( 'js/wp-showhide.js', dirname( __DIR__ ) . '/wp-showhide.php' ),
+			wp_scripts()->registered['wp-showhide']->src
+		);
+		$this->assertFileExists( dirname( __DIR__ ) . '/js/wp-showhide.js' );
+	}
+
+	/**
+	 * The style is srcless: it is printed inline, so there is no file to
+	 * request and no 404 to serve.
+	 */
+	public function test_the_style_requests_no_file() {
 		$this->assertFalse( wp_styles()->registered['wp-showhide']->src );
 	}
 
@@ -64,13 +75,26 @@ class Test_ShowHide_Assets extends WP_UnitTestCase {
 		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ) );
 	}
 
-	public function test_script_carries_the_toggle_handler_inline() {
-		$inline = implode( '', (array) wp_scripts()->get_data( 'wp-showhide', 'after' ) );
+	/**
+	 * The shipped file is the toggle handler, and it reaches for nothing that
+	 * is not already on the page.
+	 */
+	public function test_the_script_file_carries_the_toggle_handler() {
+		$script = file_get_contents( dirname( __DIR__ ) . '/js/wp-showhide.js' );
 
-		$this->assertStringContainsString( 'sh-toggle', $inline );
-		$this->assertStringContainsString( 'aria-expanded', $inline );
-		$this->assertStringNotContainsString( 'jQuery', $inline );
-		$this->assertStringNotContainsString( '$(', $inline );
+		$this->assertStringContainsString( 'sh-toggle', $script );
+		$this->assertStringContainsString( 'aria-expanded', $script );
+		$this->assertStringNotContainsString( 'jQuery', $script );
+		$this->assertStringNotContainsString( '$(', $script );
+	}
+
+	/**
+	 * Nothing is added inline to the script any more; the file is the whole of
+	 * it, so a Content-Security-Policy without 'unsafe-inline' is enough.
+	 */
+	public function test_the_script_carries_no_inline_addition() {
+		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'after' ) );
+		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'before' ) );
 	}
 
 	/**

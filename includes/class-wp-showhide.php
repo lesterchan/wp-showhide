@@ -45,17 +45,17 @@ class WP_ShowHide {
 	/**
 	 * Register the front end script and style.
 	 *
-	 * Both are registered without a src so that only the inline part is
-	 * printed. The script is left for the shortcode to enqueue, so it reaches
-	 * only the pages that actually use it. The style is enqueued here instead,
-	 * unconditionally, so it lands in the head and the toggle never flashes as
-	 * a native button before the CSS arrives.
+	 * The script is only registered here and left for the shortcode to
+	 * enqueue, so it reaches only the pages that actually use it, and it goes
+	 * in the footer because nothing on the page can be toggled before the
+	 * markup exists. The style is enqueued here instead, unconditionally, so
+	 * it lands in the head and the toggle never flashes as a native button
+	 * before the CSS arrives.
 	 *
 	 * @return void
 	 */
 	public function register_assets() {
-		wp_register_script( WP_SHOWHIDE_SLUG, false, array(), WP_SHOWHIDE_VERSION, true );
-		wp_add_inline_script( WP_SHOWHIDE_SLUG, WP_ShowHide_Template::script() );
+		wp_register_script( WP_SHOWHIDE_SLUG, WP_SHOWHIDE_URL . 'js/wp-showhide.js', array(), WP_SHOWHIDE_VERSION, true );
 
 		wp_register_style( WP_SHOWHIDE_SLUG, false, array(), WP_SHOWHIDE_VERSION );
 		wp_enqueue_style( WP_SHOWHIDE_SLUG );

@@ -1,9 +1,9 @@
 /**
  * Test harness for the toggle script.
  *
- * The script under test is read out of includes/class-wp-showhide-template.php
- * rather than duplicated here, so these tests run the exact string the plugin
- * ships. There is no build step and no second copy to drift.
+ * The script under test is read off disk from js/wp-showhide.js and run in a
+ * real document, so these tests exercise the exact file the plugin ships.
+ * There is no build step and no second copy to drift.
  */
 
 import { readFileSync } from 'node:fs';
@@ -19,25 +19,15 @@ const root = join( dirname( fileURLToPath( import.meta.url ) ), '..', '..' );
  * @return {string} JavaScript source.
  */
 export function toggleScript() {
-	const php = readFileSync( join( root, 'includes', 'class-wp-showhide-template.php' ), 'utf8' );
-	const match = php.match( /<<<'JS'\n([\s\S]*?)\nJS;/ );
-
-	if ( ! match ) {
-		throw new Error(
-			'Could not find the JS heredoc in class-wp-showhide-template.php. ' +
-			'If the script moved, update toggleScript() -- do not paste a copy in here.',
-		);
-	}
-
-	return match[ 1 ];
+	return readFileSync( join( root, 'js', 'wp-showhide.js' ), 'utf8' );
 }
 
 /**
  * Markup for one [showhide] block.
  *
- * Mirrors WP_ShowHide_Template::render(). The PHP suite pins that the real output
- * carries every attribute this depends on, so the two cannot silently diverge
- * without a test failing on one side or the other.
+ * Mirrors WP_ShowHide_Template::render(). The PHP suite pins that the real
+ * output carries every attribute this depends on, so the two cannot silently
+ * diverge without a test failing on one side or the other.
  *
  * @param {Object}  options          Block options.
  * @param {string}  options.type     Type attribute.
@@ -59,13 +49,19 @@ export function block( {
 	const state = expanded ? 'sh-show' : 'sh-hide';
 	const linkId = `${ type }-link-${ id }`;
 	const contentId = `${ type }-content-${ id }`;
-	const escape = ( s ) => s.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /"/g, '&quot;' );
+	const escape = ( value ) =>
+		value
+			.replace( /&/g, '&amp;' )
+			.replace( /</g, '&lt;' )
+			.replace( /"/g, '&quot;' );
 
 	return (
 		`<div id="${ linkId }" class="sh-link ${ type }-link ${ state }">` +
 		`<button type="button" class="sh-toggle" aria-expanded="${ expanded }" ` +
 		`aria-controls="${ contentId }" data-sh-more="${ escape( more ) }" ` +
-		`data-sh-less="${ escape( less ) }">${ escape( expanded ? less : more ) }</button>` +
+		`data-sh-less="${ escape( less ) }">${ escape(
+			expanded ? less : more,
+		) }</button>` +
 		'</div>' +
 		`<div id="${ contentId }" class="sh-content ${ type }-content ${ state }"` +
 		`${ expanded ? '' : ' hidden' }>${ content }</div>`
@@ -99,7 +95,9 @@ export function page( body ) {
 	const state = () =>
 		[ ...document.querySelectorAll( '.sh-link' ) ].map( ( wrap ) => {
 			const button = wrap.querySelector( '.sh-toggle' );
-			const content = document.getElementById( button.getAttribute( 'aria-controls' ) );
+			const content = document.getElementById(
+				button.getAttribute( 'aria-controls' ),
+			);
 
 			return {
 				id: wrap.id,
@@ -119,17 +117,27 @@ export function page( body ) {
 	const recordEvents = () => {
 		const seen = [];
 
-		for ( const name of [ 'sh-link:more', 'sh-link:less', 'sh-link:toggle' ] ) {
-			// Listening on document proves the events bubble, which themes rely on.
-			document.addEventListener( name, ( event ) => seen.push( `${ name }:${ event.target.id }` ) );
+		for ( const name of [
+			'sh-link:more',
+			'sh-link:less',
+			'sh-link:toggle',
+		] ) {
+			// Listening on document proves the events bubble, which themes
+			// rely on.
+			document.addEventListener( name, ( event ) =>
+				seen.push( `${ name }:${ event.target.id }` ),
+			);
 		}
 
 		return seen;
 	};
 
-	const click = ( selector ) => document.querySelector( selector ).dispatchEvent(
-		new window.MouseEvent( 'click', { bubbles: true } ),
-	);
+	const click = ( selector ) =>
+		document
+			.querySelector( selector )
+			.dispatchEvent(
+				new window.MouseEvent( 'click', { bubbles: true } ),
+			);
 
 	return { window, document, state, recordEvents, click };
 }

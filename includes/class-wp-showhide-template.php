@@ -114,45 +114,6 @@ class WP_ShowHide_Template {
 	}
 
 	/**
-	 * The front end JavaScript that toggles the content.
-	 *
-	 * @return string The JavaScript, without an enclosing script tag.
-	 */
-	public static function script() {
-		return <<<'JS'
-( function() {
-	document.addEventListener( 'click', function( e ) {
-		const button = e.target.closest ? e.target.closest( '.sh-toggle' ) : null;
-		if ( ! button ) {
-			return;
-		}
-
-		const wrap = button.closest( '.sh-link' ),
-			content = document.getElementById( button.getAttribute( 'aria-controls' ) ),
-			expanded = button.getAttribute( 'aria-expanded' ) === 'true';
-
-		if ( ! wrap || ! content ) {
-			return;
-		}
-
-		button.setAttribute( 'aria-expanded', expanded ? 'false' : 'true' );
-		button.textContent = expanded ? button.dataset.shMore : button.dataset.shLess;
-		content.hidden = expanded;
-
-		[ wrap, content ].forEach( function( el ) {
-			el.classList.toggle( 'sh-show', ! expanded );
-			el.classList.toggle( 'sh-hide', expanded );
-		} );
-
-		[ expanded ? 'sh-link:less' : 'sh-link:more', 'sh-link:toggle' ].forEach( function( name ) {
-			wrap.dispatchEvent( new CustomEvent( name, { bubbles: true } ) );
-		} );
-	} );
-}() );
-JS;
-	}
-
-	/**
 	 * The front end CSS.
 	 *
 	 * Keeps the toggle looking like the text link it used to be, and raises

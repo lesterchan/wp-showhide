@@ -72,8 +72,8 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The script is registered without a src, so if it is not enqueued and
-	 * printed the toggle is dead markup. This walks the whole path.
+	 * The script is only registered until a shortcode enqueues it, so if that
+	 * step is missed the toggle is dead markup. This walks the whole path.
 	 */
 	public function test_the_toggle_handler_reaches_the_footer() {
 		do_action( 'wp_enqueue_scripts' );
@@ -84,11 +84,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 		wp_print_footer_scripts();
 		$footer = ob_get_clean();
 
-		// Matched on the handler itself, not on "sh-toggle": that string is
-		// also in the stylesheet, which wp_print_footer_scripts() prints as
-		// late styles, so it would pass with no script on the page at all.
-		$this->assertStringContainsString( 'addEventListener', $footer );
-		$this->assertStringContainsString( 'dataset.shMore', $footer );
+		$this->assertStringContainsString( 'js/wp-showhide.js', $footer );
 		$this->assertStringNotContainsString( 'jquery', strtolower( $footer ) );
 	}
 
@@ -101,8 +97,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 		wp_print_footer_scripts();
 		$footer = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'addEventListener', $footer );
-		$this->assertStringNotContainsString( 'dataset.shMore', $footer );
+		$this->assertStringNotContainsString( 'js/wp-showhide.js', $footer );
 	}
 
 	/**
