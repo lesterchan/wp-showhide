@@ -3,7 +3,8 @@
  * Markup and assets for WP-ShowHide.
  *
  * Everything a theme can see is built here: the two sibling elements the
- * shortcode returns, and the script and style that drive them.
+ * shortcode returns, and the classes and attributes the stylesheet and the
+ * toggle script hang off.
  *
  * @package WP-ShowHide
  */
@@ -11,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Builds the shortcode's markup and the inline assets that go with it.
+ * Builds the shortcode's markup.
  */
 class WP_ShowHide_Template {
 
@@ -74,10 +75,14 @@ class WP_ShowHide_Template {
 		$link_id    = $type . '-link-' . $post_id . $instance;
 		$content_id = $type . '-content-' . $post_id . $instance;
 
-		$output  = '<div id="' . esc_attr( $link_id ) . '" class="sh-link ' . esc_attr( $type ) . '-link ' . $hidden_class . '">';
+		// The .wp-showhide root class carries the stylesheet's scope and is on
+		// both elements, because the shortcode returns two siblings rather than
+		// one wrapper. The class names below it are the ones the plugin has
+		// always rendered, and themes style them.
+		$output  = '<div id="' . esc_attr( $link_id ) . '" class="wp-showhide sh-link ' . esc_attr( $type ) . '-link ' . $hidden_class . '">';
 		$output .= '<button type="button" class="sh-toggle" aria-expanded="' . ( $expanded ? 'true' : 'false' ) . '" aria-controls="' . esc_attr( $content_id ) . '" data-sh-more="' . esc_attr( $more_text ) . '" data-sh-less="' . esc_attr( $less_text ) . '">' . esc_html( $expanded ? $less_text : $more_text ) . '</button>';
 		$output .= '</div>';
-		$output .= '<div id="' . esc_attr( $content_id ) . '" class="sh-content ' . esc_attr( $type ) . '-content ' . $hidden_class . '"' . ( $expanded ? '' : ' hidden' ) . '>' . do_shortcode( $content ) . '</div>';
+		$output .= '<div id="' . esc_attr( $content_id ) . '" class="wp-showhide sh-content ' . esc_attr( $type ) . '-content ' . $hidden_class . '"' . ( $expanded ? '' : ' hidden' ) . '>' . do_shortcode( $content ) . '</div>';
 
 		return $output;
 	}
@@ -111,18 +116,5 @@ class WP_ShowHide_Template {
 		self::$instances[ $key ] = isset( self::$instances[ $key ] ) ? self::$instances[ $key ] + 1 : 1;
 
 		return self::$instances[ $key ] > 1 ? '-' . self::$instances[ $key ] : '';
-	}
-
-	/**
-	 * The front end CSS.
-	 *
-	 * Keeps the toggle looking like the text link it used to be, and raises
-	 * the specificity of the hidden state above a theme that sets display on
-	 * .sh-content.
-	 *
-	 * @return string The CSS, without an enclosing style tag.
-	 */
-	public static function style() {
-		return '.sh-toggle{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline}.sh-content[hidden]{display:none}';
 	}
 }

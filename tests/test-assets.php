@@ -56,11 +56,15 @@ class Test_ShowHide_Assets extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The style is srcless: it is printed inline, so there is no file to
-	 * request and no 404 to serve.
+	 * The style is a real file under css/ for the same reason the script is:
+	 * one cached request beats the same two rules inlined into every page.
 	 */
-	public function test_the_style_requests_no_file() {
-		$this->assertFalse( wp_styles()->registered['wp-showhide']->src );
+	public function test_the_style_is_the_shipped_file() {
+		$this->assertSame(
+			plugins_url( 'css/wp-showhide.css', dirname( __DIR__ ) . '/wp-showhide.php' ),
+			wp_styles()->registered['wp-showhide']->src
+		);
+		$this->assertFileExists( dirname( __DIR__ ) . '/css/wp-showhide.css' );
 	}
 
 	/**
@@ -103,11 +107,27 @@ class Test_ShowHide_Assets extends WP_UnitTestCase {
 	 */
 	public function test_style_is_enqueued_unconditionally() {
 		$this->assertTrue( wp_style_is( 'wp-showhide', 'enqueued' ) );
+	}
 
-		$inline = implode( '', (array) wp_styles()->get_data( 'wp-showhide', 'after' ) );
+	/**
+	 * Both rules are scoped under the .wp-showhide root class, and neither
+	 * reaches for a physical property that would need mirroring in an RTL
+	 * locale or for an !important a theme could not override.
+	 */
+	public function test_the_stylesheet_is_scoped_and_direction_neutral() {
+		$css = file_get_contents( dirname( __DIR__ ) . '/css/wp-showhide.css' );
 
-		$this->assertStringContainsString( '.sh-toggle', $inline );
-		$this->assertStringContainsString( '.sh-content[hidden]', $inline );
+		$this->assertStringContainsString( '.wp-showhide .sh-toggle', $css );
+		$this->assertStringContainsString( '.wp-showhide.sh-content[hidden]', $css );
+		$this->assertStringNotContainsString( '!important', $css );
+
+		foreach ( array( 'margin-left', 'margin-right', 'padding-left', 'padding-right', 'border-left', 'border-right', 'float:' ) as $physical ) {
+			$this->assertStringNotContainsString(
+				$physical,
+				$css,
+				$physical . ' is a physical property; use its logical equivalent (section 5.1).'
+			);
+		}
 	}
 
 	public function test_script_is_not_enqueued_without_the_shortcode() {

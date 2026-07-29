@@ -56,14 +56,14 @@ export function block( {
 			.replace( /"/g, '&quot;' );
 
 	return (
-		`<div id="${ linkId }" class="sh-link ${ type }-link ${ state }">` +
+		`<div id="${ linkId }" class="wp-showhide sh-link ${ type }-link ${ state }">` +
 		`<button type="button" class="sh-toggle" aria-expanded="${ expanded }" ` +
 		`aria-controls="${ contentId }" data-sh-more="${ escape( more ) }" ` +
 		`data-sh-less="${ escape( less ) }">${ escape(
 			expanded ? less : more,
 		) }</button>` +
 		'</div>' +
-		`<div id="${ contentId }" class="sh-content ${ type }-content ${ state }"` +
+		`<div id="${ contentId }" class="wp-showhide sh-content ${ type }-content ${ state }"` +
 		`${ expanded ? '' : ' hidden' }>${ content }</div>`
 	);
 }

@@ -118,7 +118,7 @@ class Test_ShowHide_Integration extends WP_UnitTestCase {
 		wp_print_styles();
 		$styles = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'sh-toggle', $styles );
+		$this->assertStringNotContainsString( 'css/wp-showhide.css', $styles );
 	}
 
 	/**

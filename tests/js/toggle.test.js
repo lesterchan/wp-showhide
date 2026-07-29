@@ -35,8 +35,8 @@ describe( 'toggling a block', () => {
 			expanded: 'false',
 			label: 'Show Press Release (4 More Words)',
 			hidden: true,
-			linkClass: 'sh-link pressrelease-link sh-hide',
-			contentClass: 'sh-content pressrelease-content sh-hide',
+			linkClass: 'wp-showhide sh-link pressrelease-link sh-hide',
+			contentClass: 'wp-showhide sh-content pressrelease-content sh-hide',
 		} );
 
 		click( '.sh-toggle' );
@@ -46,8 +46,8 @@ describe( 'toggling a block', () => {
 			expanded: 'true',
 			label: 'Hide Press Release (4 Less Words)',
 			hidden: false,
-			linkClass: 'sh-link pressrelease-link sh-show',
-			contentClass: 'sh-content pressrelease-content sh-show',
+			linkClass: 'wp-showhide sh-link pressrelease-link sh-show',
+			contentClass: 'wp-showhide sh-content pressrelease-content sh-show',
 		} );
 	} );
 

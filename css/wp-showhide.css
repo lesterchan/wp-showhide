@@ -1,0 +1,36 @@
+/**
+ * WP-ShowHide front end styles.
+ *
+ * Two rules, scoped under the .wp-showhide root class the shortcode puts on
+ * both of the elements it renders.
+ *
+ * There is nothing here to mirror for a right-to-left locale: the plugin
+ * paints no surface, sets no colour of its own and lays nothing out, so one
+ * sheet serves both directions (section 5.1).
+ */
+
+/*
+ * The toggle is a <button> for the keyboard and the accessibility tree, but it
+ * has always looked like the text link it used to be. Everything here undoes a
+ * user agent default rather than imposing a style of its own, so the theme's
+ * typography and colour reach it untouched.
+ */
+.wp-showhide .sh-toggle {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+/*
+ * The hidden attribute already means display: none, but a theme rule setting
+ * display on .sh-content would out-specify it and leave the content visible
+ * with no way to collapse it. Two classes beat one.
+ */
+.wp-showhide.sh-content[hidden] {
+	display: none;
+}

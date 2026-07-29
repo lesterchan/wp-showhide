@@ -57,9 +57,7 @@ class WP_ShowHide {
 	public function register_assets() {
 		wp_register_script( WP_SHOWHIDE_SLUG, WP_SHOWHIDE_URL . 'js/wp-showhide.js', array(), WP_SHOWHIDE_VERSION, true );
 
-		wp_register_style( WP_SHOWHIDE_SLUG, false, array(), WP_SHOWHIDE_VERSION );
-		wp_enqueue_style( WP_SHOWHIDE_SLUG );
-		wp_add_inline_style( WP_SHOWHIDE_SLUG, WP_ShowHide_Template::style() );
+		wp_enqueue_style( WP_SHOWHIDE_SLUG, WP_SHOWHIDE_URL . 'css/wp-showhide.css', array(), WP_SHOWHIDE_VERSION );
 	}
 
 	/**

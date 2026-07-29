@@ -131,6 +131,18 @@ class Test_ShowHide_Shortcode extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Hide Press Release (2 Less Words)', $expanded );
 	}
 
+	/**
+	 * Both elements carry the root class the stylesheet is scoped under. The
+	 * shortcode returns two siblings rather than one wrapper, so there is no
+	 * single outermost element for it to sit on alone.
+	 */
+	public function test_both_elements_carry_the_stylesheet_root_class() {
+		$html = $this->render( '[showhide]Hello world[/showhide]' );
+
+		$this->assertStringContainsString( 'wp-showhide', showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
+		$this->assertStringContainsString( 'wp-showhide', showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
+	}
+
 	public function test_default_classes_and_ids_use_the_default_type() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
