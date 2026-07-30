@@ -145,7 +145,7 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 ### 3.0.0
 Your posts need no editing. The `[showhide]` shortcode, all four of its attributes and the IDs and classes it renders are unchanged, and so are the three `sh-link:*` events. Four things are worth knowing before you update.
 
-**Your site must be on WordPress 6.8 or later and PHP 8.2 or later.** Anything older will simply not be offered the update. If your host still runs PHP 7.4, ask to be moved to a supported version before updating — 7.4 stopped receiving security fixes in 2022.
+**Your site must be on WordPress 6.8 or later and PHP 8.2 or later.** Anything older will simply not be offered the update. Check `WP-Admin -> Tools -> Site Health -> Info -> Server` for your PHP version; if it is below 8.2, ask your host to move you up. PHP 8.1 and everything before it stopped receiving security fixes.
 
 **Check your theme for the plugin's old global functions.** `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` have been removed, so a theme that calls one will fatal. They were never meant to be called: the plugin registers its own shortcode and its own assets. If you were unhooking `showhide_scripts` to suppress the stylesheet, that no longer removes anything — dequeue the style instead:
 
