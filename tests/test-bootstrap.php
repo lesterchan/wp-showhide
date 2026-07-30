@@ -51,16 +51,16 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	}
 
 	/**
-	 * The six constants every plugin in this family defines, in the plugin
-	 * file and nowhere else.
+	 * The constants this plugin defines, in the plugin file and nowhere else.
 	 *
 	 * They are the one source of truth for the version, the slug and the paths,
 	 * so a class reaching for __DIR__ or hard-coding "wp-showhide" is a bug
 	 * even when it happens to work.
 	 */
-	public function test_the_six_php_constants_are_defined() {
+	public function test_the_five_php_constants_are_defined() {
+		// Five, not six: there is no DB_VERSION, because there is no schema and
+		// no stored row for one to describe. See STANDARDS.md 2.1.
 		$this->assertSame( '3.0.0', WP_SHOWHIDE_VERSION );
-		$this->assertSame( '1', WP_SHOWHIDE_DB_VERSION );
 		$this->assertSame( 'wp-showhide', WP_SHOWHIDE_SLUG );
 		$this->assertSame(
 			realpath( dirname( __DIR__ ) . '/wp-showhide.php' ),
@@ -111,7 +111,6 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_every_class_is_loaded() {
 		$this->assertTrue( class_exists( 'WP_ShowHide' ) );
 		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ) );
-		$this->assertTrue( class_exists( 'WP_ShowHide_Options' ) );
 	}
 
 	public function test_get_instance_is_a_singleton() {
@@ -123,7 +122,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	 * declares can ever collide with another plugin's class of the same noun.
 	 */
 	public function test_every_class_carries_the_plugin_prefix() {
-		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template', 'WP_ShowHide_Options' ) as $class ) {
+		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template' ) as $class ) {
 			$this->assertStringStartsWith( 'WP_ShowHide', $class );
 		}
 	}
@@ -190,15 +189,20 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	}
 
 	/**
-	 * The upgrade check is the only thing the plugin does before a page is
-	 * being rendered, and it is registered from the bootstrap rather than from
-	 * an activation hook, which never runs for a plugin that was already
-	 * network-activated.
+	 * There is no upgrade check, because there is nothing to upgrade.
+	 *
+	 * The bootstrap used to register one on plugins_loaded to keep a version row
+	 * current. The plugin stores nothing now (STANDARDS.md 2.1), so that hook
+	 * would run on every request to compare two strings about a row nobody
+	 * writes.
 	 */
-	public function test_the_bootstrap_registers_the_upgrade_check() {
-		$this->assertSame(
-			10,
-			has_action( 'plugins_loaded', array( 'WP_ShowHide_Options', 'maybe_upgrade' ) )
-		);
+	public function test_the_bootstrap_registers_no_upgrade_check() {
+		foreach ( $GLOBALS['wp_filter']['plugins_loaded']->callbacks ?? array() as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$class = is_array( $callback['function'] ) ? (string) $callback['function'][0] : '';
+
+				$this->assertStringNotContainsString( 'WP_ShowHide', $class, 'The plugin still hooks an upgrade check onto plugins_loaded.' );
+			}
+		}
 	}
 }

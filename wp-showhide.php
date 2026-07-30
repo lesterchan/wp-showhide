@@ -42,11 +42,6 @@ defined( 'ABSPATH' ) || exit;
 define( 'WP_SHOWHIDE_VERSION', '3.0.0' );
 
 /**
- * Schema counter. Bumped only when the stored rows need reshaping.
- */
-define( 'WP_SHOWHIDE_DB_VERSION', '1' );
-
-/**
  * WP-ShowHide slug, which is also the text domain and the asset handle.
  */
 define( 'WP_SHOWHIDE_SLUG', 'wp-showhide' );
@@ -66,7 +61,6 @@ define( 'WP_SHOWHIDE_DIR', plugin_dir_path( __FILE__ ) );
  */
 define( 'WP_SHOWHIDE_URL', plugin_dir_url( __FILE__ ) );
 
-require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide-options.php';
 require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide-template.php';
 require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide.php';
 

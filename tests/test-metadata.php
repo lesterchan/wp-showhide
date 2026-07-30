@@ -408,26 +408,44 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 	}
 
 	/**
-	 * Deleting the plugin leaves nothing behind.
+	 * The plugin writes no option row at all, ever.
 	 *
-	 * The assertion is deliberately a LIKE over wp_options rather than one
-	 * delete_option() check: a row added later and forgotten in uninstall.php
-	 * is exactly the failure this is here to catch. The multisite config runs
-	 * the same test through uninstall.php's get_sites() branch.
+	 * WP-ShowHide is one shortcode and its stylesheet. It keeps no state between
+	 * requests, so under STANDARDS.md 2.1 it stores nothing -- not a settings
+	 * row, and not the version markers either. Those exist to tell a migration
+	 * what it is upgrading from, and there is no migration and nothing to
+	 * migrate.
+	 *
+	 * Booting the plugin and then finding the table empty is the whole test. If
+	 * a later change starts storing something, this fails and the upgrade
+	 * machinery has to come back with it.
 	 */
-	public function test_uninstall_removes_every_option_row() {
-		WP_ShowHide_Options::maybe_upgrade();
+	public function test_the_plugin_stores_nothing() {
+		do_action( 'plugins_loaded' );
+		do_action( 'init' );
 
-		$this->assertNotEmpty(
+		$this->assertSame(
+			array(),
 			$this->stored_option_names(),
-			'There should be rows to remove before uninstall runs.'
+			'WP-ShowHide wrote an option row; it is meant to store nothing at all.'
 		);
+	}
+
+	/**
+	 * A row left by a pre-release install is still cleared on uninstall.
+	 *
+	 * 3.0.0 is unreleased, and an earlier build of it did write
+	 * wp_showhide_version. Nothing writes it now, so uninstall is the only thing
+	 * that will ever remove it from a site that ran that build.
+	 */
+	public function test_uninstall_removes_a_row_left_by_a_pre_release_build() {
+		update_option( 'wp_showhide_version', array( 'plugin' => '3.0.0' ) );
 
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			define( 'WP_UNINSTALL_PLUGIN', 'wp-showhide/wp-showhide.php' );
 		}
 
-		require_once dirname( __DIR__ ) . '/uninstall.php';
+		require dirname( __DIR__ ) . '/uninstall.php';
 
 		wp_cache_flush();
 
@@ -435,46 +453,6 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 			array(),
 			$this->stored_option_names(),
 			'uninstall.php must remove every wp_showhide_* row.'
-		);
-	}
-
-	/**
-	 * The upgrade markers live in their own row, holding those two keys and no
-	 * others. Anything else in here means a marker has drifted back into the
-	 * settings array, which is the bug this shape exists to make impossible.
-	 */
-	public function test_version_row_holds_exactly_plugin_and_db() {
-		WP_ShowHide_Options::maybe_upgrade();
-
-		$markers = get_option( WP_ShowHide_Options::VERSION );
-
-		$this->assertIsArray( $markers, 'wp_showhide_version must be an array.' );
-
-		$keys = array_keys( $markers );
-		sort( $keys );
-
-		$this->assertSame( array( 'db', 'plugin' ), $keys );
-		$this->assertSame( WP_SHOWHIDE_VERSION, $markers['plugin'] );
-		$this->assertSame( WP_SHOWHIDE_DB_VERSION, $markers['db'] );
-	}
-
-	/**
-	 * Elsewhere in the family this slot holds
-	 * test_settings_sanitizer_never_stores_version_markers(), which guards
-	 * against a version marker being kept inside the settings array.
-	 *
-	 * WP-ShowHide has no settings, no settings row and no sanitiser (section
-	 * 2.1), so there is nothing for a marker to hide in. Section 7.2
-	 * substitutes this assertion instead: the settings row must never come into
-	 * existence. If a later change reintroduces one, the sanitiser test has to
-	 * come back with it, and this failing is the reminder.
-	 */
-	public function test_no_settings_row_exists_to_hide_a_marker_in() {
-		WP_ShowHide_Options::maybe_upgrade();
-
-		$this->assertFalse(
-			get_option( 'wp_showhide_options' ),
-			'WP-ShowHide is exempt from the settings row; reinstating one needs the sanitiser test back.'
 		);
 	}
 
