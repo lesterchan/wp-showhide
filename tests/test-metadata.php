@@ -79,7 +79,14 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 
 					$name = $file->getFilename();
 
-					return 'vendor' !== $name && 'node_modules' !== $name && '.' !== $name[0];
+					// artifacts/ is a Playwright output directory: gitignored,
+					// never deployed, and recreated on any failing run. An
+					// index.php in it would be a file nobody wrote, asking to be
+					// kept.
+					return 'vendor' !== $name
+						&& 'node_modules' !== $name
+						&& 'artifacts' !== $name
+						&& '.' !== $name[0];
 				}
 			),
 			RecursiveIteratorIterator::SELF_FIRST
