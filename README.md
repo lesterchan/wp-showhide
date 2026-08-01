@@ -103,44 +103,6 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 * FIXED: `hidden="No"` left the content collapsed instead of expanding it. The attribute is matched case insensitively now, so any spelling of `no` works.
 * FIXED: Requesting `wp-showhide.php` directly ran it outside WordPress instead of exiting.
 
-### 2.0.0
-* BREAKING: Removed the global `showhide_toggle()` function, superseded by the delegated click handler
-* NEW: WordPress 7.0
-* NEW: Rewritten in vanilla JavaScript, jQuery is no longer required
-* NEW: The JavaScript is now only loaded on pages that actually use the shortcode
-* NEW: The toggle is now a `<button>` with `aria-controls`, and its state is driven by `aria-expanded`
-* CHANGED: Removed `load_plugin_textdomain()`, which WordPress has handled automatically since 4.6
-* FIXED: Fatal error when the `more_text`/`less_text` attributes contain extra format specifiers
-* FIXED: Malformed JavaScript when the shortcode is used outside of the loop
-* FIXED: The `type` attribute is now restricted to characters that are valid in an HTML ID/class
-* FIXED: Word count now counts all whitespace, so multi-paragraph content is no longer under-counted
-* FIXED: PHP 8.1+ deprecation notice when the shortcode is used without any content
-* FIXED: The toggle label no longer desyncs when the more/less text contains a backslash
-* FIXED: Using the same `type` more than once in a post no longer produces duplicate element IDs
-* FIXED: Word count no longer counts the contents of `<script>` and `<style>` blocks as words
-
-### 1.06
-* FIXED: esc_html() for more text to prevent XSS
-
-### 1.05
-* FIXED: esc_attr type attributes to prevent XSS
-
-### 1.04
-* NEW: Added aria-hidden and aria-expanded to elements
-
-### 1.03
-* NEW: Added `.sh-link` and `.sh-content` as a standard class name on top of the type specific class name.
-* NEW: Added do_shortcode() to allow shortcode to be parsed within ShowHide
-
-### 1.02
-* FIXED: Some theme uses `.hide` as `display: none` and hence I have changed `.show` to `.sh-show` and `.hide` to `.sh-hide` to advoid conflicts.
-
-### 1.01
-* NEW: Added additional `show` or `hide` class to the link and content depending on the visiblity of the content to allow more precise CSS styling.
-
-### 1.00 (01-05-2011)
-* NEW: Initial Release
-
 ## Upgrade Notice
 ### 3.0.0
 Your posts need no editing. The `[showhide]` shortcode, all four of its attributes and the IDs and classes it renders are unchanged, and so are the three `sh-link:*` events. Four things are worth knowing before you update.
