@@ -104,12 +104,14 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 * FIXED: Requesting `wp-showhide.php` directly ran it outside WordPress instead of exiting.
 
 ## Upgrade Notice
+
 ### 3.0.0
-Your posts need no editing. The `[showhide]` shortcode, all four of its attributes and the IDs and classes it renders are unchanged, and so are the three `sh-link:*` events. Four things are worth knowing before you update.
 
-**Your site must be on WordPress 6.8 or later and PHP 8.2 or later.** Anything older will simply not be offered the update. Check `WP-Admin -> Tools -> Site Health -> Info -> Server` for your PHP version; if it is below 8.2, ask your host to move you up. PHP 8.1 and everything before it stopped receiving security fixes.
+Requires WordPress 6.8 and PHP 8.2.
 
-**Check your theme for the plugin's old global functions.** `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` have been removed, so a theme that calls one will fatal. They were never meant to be called: the plugin registers its own shortcode and its own assets. If you were unhooking `showhide_scripts` to suppress the stylesheet, that no longer removes anything — dequeue the style instead:
+Posts need no editing: the `[showhide]` shortcode, all four of its attributes, the IDs and classes it renders and the three `sh-link:*` events are unchanged.
+
+**Check your theme for the plugin's old global functions.** `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` are removed, so a theme calling one will fatal. They were never meant to be called; the plugin registers its own shortcode and its own assets. If you were unhooking `showhide_scripts` to suppress the stylesheet, that no longer removes anything — dequeue the style instead:
 
 ```php
 add_action( 'wp_enqueue_scripts', function () {
@@ -117,18 +119,8 @@ add_action( 'wp_enqueue_scripts', function () {
 }, 20 );
 ```
 
-**The two classes were renamed.** `ShowHide` is now `WP_ShowHide` and `ShowHide_Template` is now `WP_ShowHide_Template`. Neither is needed in normal use.
+**The two classes are renamed.** `ShowHide` is now `WP_ShowHide` and `ShowHide_Template` is now `WP_ShowHide_Template`. Neither is needed in normal use.
 
-**The script and the stylesheet are files now, not inline blocks.** They are served from the plugin's own `js/` and `css/` directories, which means a caching or minifying plugin will see them for the first time. If yours combines files, let it rebuild after you update.
+**The script and the stylesheet are files now, not inline blocks**, served from the plugin's own `js/` and `css/` directories, so a caching or minifying plugin will see them for the first time. Let it rebuild after you update.
 
-The plugin also starts storing one row in `wp_options`, `wp_showhide_version`, and deletes it when you delete the plugin. There is still no settings screen and nothing to configure.
-
-### 2.0.0
-The generated HTML changed, so **custom CSS and JavaScript may need updating** even though your posts do not.
-
-* **The toggle is a `<button class="sh-toggle">` instead of `<a href="#">`.** CSS targeting `.sh-link A` must become `.sh-link .sh-toggle`.
-* **The inner `<span id="{type}-toggle-{post_id}">` is gone.** The label sits directly on the button, so target `.sh-toggle` instead.
-* **Hidden content uses the `hidden` attribute instead of `style="display: none;"`.** If your CSS sets `display` on `.sh-content`, add `.sh-content[hidden] { display: none; }` or raise your specificity.
-* **jQuery is no longer enqueued by this plugin.** If your theme relied on WP-ShowHide to pull jQuery onto the page, enqueue it yourself.
-* **The global `showhide_toggle()` function is gone.** To toggle a block programmatically, click its `.sh-toggle` button; to react to a toggle, listen for the `sh-link:toggle` event.
-* **Repeating the same `type` within one post appends a counter to the element IDs.** The first occurrence keeps its original ID, so this only affects posts that were emitting duplicate IDs anyway.
+The plugin now stores one row, `wp_showhide_version`, and deletes it on uninstall. There is still no settings screen and nothing to configure.
