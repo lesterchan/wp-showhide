@@ -38,7 +38,7 @@ test.describe( 'The showhide shortcode', () => {
 		await openPost(
 			requestUtils,
 			page,
-			'[showhide]The quick brown fox jumps over the lazy dog.[/showhide]'
+			'[showhide]The quick brown fox jumps over the lazy dog.[/showhide]',
 		);
 
 		const toggle = page.locator( '.sh-toggle' );
@@ -70,7 +70,7 @@ test.describe( 'The showhide shortcode', () => {
 		await openPost(
 			requestUtils,
 			page,
-			'[showhide]The quick brown fox jumps over the lazy dog[/showhide]'
+			'[showhide]The quick brown fox jumps over the lazy dog[/showhide]',
 		);
 
 		const toggle = page.locator( '.sh-toggle' );
@@ -108,7 +108,7 @@ test.describe( 'The showhide shortcode', () => {
 		await openPost(
 			requestUtils,
 			page,
-			'[showhide more_text="Read the rest" less_text="That is enough"]Body[/showhide]'
+			'[showhide more_text="Read the rest" less_text="That is enough"]Body[/showhide]',
 		);
 
 		const toggle = page.locator( '.sh-toggle' );
@@ -137,7 +137,7 @@ test.describe( 'The showhide shortcode', () => {
 		await openPost(
 			requestUtils,
 			page,
-			'[showhide]First body[/showhide][showhide]Second body[/showhide]'
+			'[showhide]First body[/showhide][showhide]Second body[/showhide]',
 		);
 
 		const toggles = page.locator( '.sh-toggle' );
@@ -182,7 +182,7 @@ test.describe( 'The showhide shortcode', () => {
 		await openPost(
 			requestUtils,
 			page,
-			'[showhide]Nested: [showhide type="inner"]deep[/showhide][/showhide]'
+			'[showhide]Nested: [showhide type="inner"]deep[/showhide][/showhide]',
 		);
 
 		await page.locator( '.sh-toggle' ).first().click();
