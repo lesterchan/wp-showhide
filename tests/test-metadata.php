@@ -2,206 +2,137 @@
 /**
  * The release invariants, asserted from the source and from the stored rows.
  *
- * These are the house rules every plugin in this family shares, and every one
- * of them has been broken by an ordinary edit at some point: a header field
- * that drifted out of the canonical order, a new directory shipped without its
- * silence guard, a version bumped in one file of three, a readme header line
- * that lost the two trailing spaces holding it apart from the next.
- *
- * They are the things a restructuring quietly breaks and nothing notices until
- * a release fails its pre-flight months later, so catching them here is far
- * cheaper than catching them there.
+ * Everything §7.2 asks of all nineteen plugins now lives in
+ * Plugin_Metadata_TestCase. What is left here is what only WP-ShowHide can
+ * say: the version it ships, its class prefix, the breaks its Upgrade Notice
+ * has to cover, and the fact that a shortcode and its two asset files store
+ * nothing between requests.
  *
  * @package WP-ShowHide
  */
 
 /**
+ * WP-ShowHide's half of the shared metadata contract.
+ *
  * @coversNothing
  */
-class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
-
-	const VERSION = '3.0.0';
+class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 
 	/**
-	 * The main plugin file.
+	 * The version this release ships.
 	 *
 	 * @return string
 	 */
-	protected function plugin_file() {
-		return wp_showhide_test_read( 'wp-showhide.php' );
+	protected function expected_version() {
+		return '3.0.0';
 	}
 
 	/**
-	 * The readme.
+	 * The prefix every class the plugin declares carries.
 	 *
 	 * @return string
 	 */
-	protected function readme() {
-		return wp_showhide_test_read( 'README.md' );
+	protected function class_prefix() {
+		return 'WP_ShowHide';
 	}
 
 	/**
-	 * The readme's header block: everything above the first blank line.
+	 * What a site owner updating from the released 1.02 would notice.
 	 *
-	 * @return string
-	 */
-	protected function readme_header() {
-		return substr( $this->readme(), 0, (int) strpos( $this->readme(), "\n\n" ) );
-	}
-
-	/**
-	 * Every directory the plugin ships, plugin root included.
-	 *
-	 * Dot directories are left out because .github never reaches a user, and
-	 * vendor/ and node_modules/ are not ours and never ship.
-	 *
-	 * @return string[] Absolute paths.
-	 */
-	protected function shipped_directories() {
-		$root  = dirname( __DIR__ );
-		$found = array( $root );
-
-		$iterator = new RecursiveIteratorIterator(
-			new RecursiveCallbackFilterIterator(
-				new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ),
-				/**
-				 * Prune rather than filter afterwards: descending into
-				 * node_modules only to throw its contents away costs tens of
-				 * thousands of stat() calls.
-				 *
-				 * @param SplFileInfo $file Current entry.
-				 * @return bool
-				 */
-				static function ( $file ) {
-					if ( ! $file->isDir() ) {
-						return false;
-					}
-
-					$name = $file->getFilename();
-
-					// artifacts/ is a Playwright output directory: gitignored,
-					// never deployed, and recreated on any failing run. An
-					// index.php in it would be a file nobody wrote, asking to be
-					// kept.
-					return 'vendor' !== $name
-						&& 'node_modules' !== $name
-						&& 'artifacts' !== $name
-						&& '.' !== $name[0];
-				}
-			),
-			RecursiveIteratorIterator::SELF_FIRST
-		);
-
-		foreach ( $iterator as $file ) {
-			$found[] = $file->getPathname();
-		}
-
-		return $found;
-	}
-
-	/**
-	 * A field from the main plugin file's header docblock.
-	 *
-	 * @param string $field Field name.
-	 * @return string
-	 */
-	protected function header_field( $field ) {
-		$data = get_file_data( dirname( __DIR__ ) . '/wp-showhide.php', array( $field => $field ) );
-
-		return $data[ $field ];
-	}
-
-	/**
-	 * A field from the readme's header block.
-	 *
-	 * @param string $field Field name.
-	 * @return string
-	 */
-	protected function readme_field( $field ) {
-		preg_match( '/^' . preg_quote( $field, '/' ) . ':\s*(.+?)\s*$/m', $this->readme(), $matches );
-
-		return isset( $matches[1] ) ? $matches[1] : '';
-	}
-
-	/**
-	 * Every option row the plugin owns, read straight from the table.
+	 * Posts need no editing, which is the first thing the notice says. What did
+	 * change is everything a theme could have reached for: three global
+	 * functions that are gone, two classes that are renamed, and the
+	 * unhooking recipe people used to suppress the stylesheet, which no longer
+	 * removes anything now that the assets are files with handles.
 	 *
 	 * @return string[]
 	 */
-	protected function stored_option_names() {
-		global $wpdb;
-
-		return (array) $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like( 'wp_showhide_' ) . '%'
-			)
+	protected function upgrade_notice_subjects() {
+		return array(
+			'WordPress 6.8',
+			'PHP 8.2',
+			'`[showhide]`',
+			'`showhide_scripts()`',
+			'`showhide_js()`',
+			'`showhide_shortcode()`',
+			'`ShowHide`',
+			'`WP_ShowHide`',
+			'`ShowHide_Template`',
+			'`WP_ShowHide_Template`',
+			"wp_dequeue_style( 'wp-showhide' )",
+			'`wp_showhide_version`',
 		);
 	}
 
 	/**
-	 * Header lines need two trailing spaces to render as separate lines.
+	 * This plugin keeps no version marker row (§2.1).
 	 *
-	 * Markdown joins consecutive lines into one paragraph unless each is ended
-	 * with a hard line break, so a missing pair renders as
-	 * "License: GPLv2 or later License URI: https://..." on GitHub. It is
-	 * invisible in the source and in a diff, which is exactly why it wants a
-	 * test. The last line needs none, having nothing after it to run into.
+	 * One shortcode, one script and one stylesheet. No settings, no schema and
+	 * no migration, so there is nothing for a marker to mark.
+	 *
+	 * @return bool
 	 */
-	public function test_every_readme_header_line_keeps_its_line_break() {
-		$lines = explode( "\n", $this->readme_header() );
-
-		// The first line is the "# WP-ShowHide" heading, not a header field.
-		$fields = array_slice( $lines, 1 );
-
-		$this->assertCount( 9, $fields, 'The readme header holds exactly nine fields.' );
-
-		$last = array_pop( $fields );
-
-		foreach ( $fields as $line ) {
-			$this->assertStringEndsWith(
-				'  ',
-				$line,
-				"Needs two trailing spaces or it merges with the line below: {$line}"
-			);
-		}
-
-		$this->assertSame( rtrim( $last ), $last, 'The last field needs no trailing spaces.' );
-		$this->assertStringStartsWith( 'License URI:', $last );
-	}
-
-	public function test_canonical_lesterchan_urls() {
-		$this->assertSame(
-			'https://lesterchan.net/portfolio/programming/php/',
-			$this->header_field( 'Plugin URI' )
-		);
-		$this->assertSame( 'https://lesterchan.net', $this->header_field( 'Author URI' ) );
-		$this->assertSame( 'https://lesterchan.net/site/donation/', $this->readme_field( 'Donate link' ) );
-		$this->assertSame(
-			'https://www.gnu.org/licenses/gpl-2.0.html',
-			$this->header_field( 'License URI' )
-		);
-		$this->assertSame( 'https://www.gnu.org/licenses/gpl-2.0.html', $this->readme_field( 'License URI' ) );
+	protected function has_version_row() {
+		return false;
 	}
 
 	/**
-	 * One name, in every plugin. A second contributor has to be added on
-	 * wordpress.org as well, so a name here that is not on the listing silently
-	 * does nothing.
+	 * This plugin keeps no settings row either, and so has no sanitiser.
+	 *
+	 * @return bool
 	 */
-	public function test_contributors_is_gamerz_only() {
-		$this->assertSame( 'GamerZ', $this->readme_field( 'Contributors' ) );
-	}
-
-	public function test_text_domain_is_the_plugin_slug() {
-		$this->assertSame( 'wp-showhide', $this->header_field( 'Text Domain' ) );
-		$this->assertSame( '/languages', $this->header_field( 'Domain Path' ) );
-		$this->assertSame( 'wp-showhide', WP_SHOWHIDE_SLUG );
+	protected function has_settings_row() {
+		return false;
 	}
 
 	/**
-	 * Every translation call must carry that same domain, or the string is
-	 * looked up in a catalogue that has never heard of it.
+	 * The one row uninstall will ever find.
+	 *
+	 * Nothing writes it now. An early build of the unreleased 3.0.0 did write
+	 * wp_showhide_version, so uninstall.php is the only thing that will ever
+	 * take it off a site that ran that build -- and the shared uninstall test
+	 * needs a row to exist before it can prove one was removed.
+	 *
+	 * @return void
+	 */
+	protected function seed_option_rows() {
+		update_option( 'wp_showhide_version', array( 'plugin' => '3.0.0' ) );
+	}
+
+	/**
+	 * Register the script and the stylesheet.
+	 *
+	 * Both are registered on wp_enqueue_scripts, unconditionally, so firing the
+	 * action is all the shared asset tests need to see the handles.
+	 *
+	 * @return void
+	 */
+	protected function register_plugin_assets() {
+		do_action( 'wp_enqueue_scripts' );
+	}
+
+	/**
+	 * At most five tags: wordpress.org shows five and ignores the rest.
+	 */
+	public function test_the_readme_lists_at_most_five_tags() {
+		$tags = $this->readme_field( 'Tags' );
+
+		$this->assertNotEmpty( $tags, 'The readme must carry a Tags line.' );
+		$this->assertLessThanOrEqual( 5, count( explode( ',', $tags ) ) );
+	}
+
+	/**
+	 * No Translations section: translate.wordpress.org is the only route in.
+	 */
+	public function test_the_readme_has_no_translations_section() {
+		$this->assertSame( 0, preg_match( '/^### Translations/m', $this->readme() ) );
+	}
+
+	/**
+	 * Every translation call carries the plugin's own text domain.
+	 *
+	 * A call without it is looked up in a catalogue that has never heard of the
+	 * string, and falls back to English in every locale.
 	 */
 	public function test_every_translation_call_uses_the_plugin_text_domain() {
 		preg_match_all( '/(?:__|_n|_x)\((.*?)\);/s', wp_showhide_test_source_code(), $calls );
@@ -217,108 +148,11 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 		}
 	}
 
-	public function test_version_matches_everywhere() {
-		$this->assertSame( self::VERSION, $this->header_field( 'Version' ) );
-		$this->assertSame( self::VERSION, $this->readme_field( 'Stable tag' ) );
-		$this->assertSame( self::VERSION, WP_SHOWHIDE_VERSION );
-		$this->assertStringContainsString(
-			"define( 'WP_SHOWHIDE_VERSION', '" . self::VERSION . "' );",
-			$this->plugin_file()
-		);
-	}
-
-	public function test_requires_headers_match_readme() {
-		$this->assertSame( '6.8', $this->header_field( 'Requires at least' ) );
-		$this->assertSame( '6.8', $this->readme_field( 'Requires at least' ) );
-		$this->assertSame( '8.2', $this->header_field( 'Requires PHP' ) );
-		$this->assertSame( '8.2', $this->readme_field( 'Requires PHP' ) );
-	}
-
 	/**
-	 * The order is neither alphabetical nor intuitive -- Requires at least and
-	 * Requires PHP sit before Author -- so it is copied, never composed.
-	 */
-	public function test_the_plugin_header_fields_are_in_the_canonical_order() {
-		preg_match( '#^<\?php\s*/\*\*(.+?)\*/#s', $this->plugin_file(), $matches );
-
-		$this->assertNotEmpty( $matches, 'The plugin file must open with a docblock header.' );
-
-		preg_match_all( '/^\s*\*\s*([A-Z][A-Za-z ]*?):\s/m', $matches[1], $fields );
-
-		$this->assertSame(
-			array(
-				'Plugin Name',
-				'Plugin URI',
-				'Description',
-				'Version',
-				'Requires at least',
-				'Requires PHP',
-				'Author',
-				'Author URI',
-				'License',
-				'License URI',
-				'Text Domain',
-				'Domain Path',
-			),
-			$fields[1]
-		);
-	}
-
-	/**
-	 * The readme order differs from the PHP one on purpose: Requires PHP comes
-	 * after Stable tag here. They are not to be harmonised.
-	 */
-	public function test_the_readme_header_fields_are_in_the_canonical_order() {
-		preg_match_all( '/^([A-Z][A-Za-z ]*?):\s/m', $this->readme_header(), $fields );
-
-		$this->assertSame(
-			array(
-				'Contributors',
-				'Donate link',
-				'Tags',
-				'Requires at least',
-				'Tested up to',
-				'Stable tag',
-				'Requires PHP',
-				'License',
-				'License URI',
-			),
-			$fields[1]
-		);
-	}
-
-	public function test_the_readme_lists_at_most_five_tags() {
-		$tags = $this->readme_field( 'Tags' );
-
-		$this->assertNotEmpty( $tags, 'The readme must carry a Tags line.' );
-		$this->assertLessThanOrEqual( 5, count( explode( ',', $tags ) ) );
-	}
-
-	/**
-	 * The second-level headings are a closed set in a fixed order.
+	 * The donations paragraph is the last h3 of the description.
 	 *
-	 * Third-level ones are not: Features, Donations and every changelog version
-	 * live below these.
-	 */
-	public function test_readme_sections_are_the_canonical_set() {
-		preg_match_all( '/^## (.+?)\s*$/m', $this->readme(), $sections );
-
-		$this->assertSame(
-			array(
-				'Description',
-				'Usage',
-				'Frequently Asked Questions',
-				'Screenshots',
-				'Changelog',
-				'Upgrade Notice',
-			),
-			$sections[1]
-		);
-	}
-
-	/**
-	 * The donations paragraph is the last h3 of the description, worded
-	 * identically in all nineteen plugins.
+	 * Worded identically in all nineteen plugins, and positioned so it cannot
+	 * end up under Usage or the FAQ.
 	 */
 	public function test_the_donations_section_closes_the_description() {
 		$description = substr( $this->readme(), (int) strpos( $this->readme(), '## Description' ) );
@@ -334,181 +168,21 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 	}
 
 	/**
-	 * Bare versions: "### 3.0.0", never "### Version 3.0.0".
-	 */
-	public function test_every_changelog_heading_is_a_bare_version() {
-		$this->assertSame( 0, preg_match( '/^### Version /m', $this->readme() ) );
-		$this->assertStringContainsString( '### ' . self::VERSION . "\n", $this->readme() );
-	}
-
-	/**
-	 * Five prefixes, and nothing else.
+	 * The old forums.lesterchan.net is gone, and the rest had drifted to http.
 	 *
-	 * The listing on wordpress.org renders the changelog verbatim, so a stray
-	 * "Important:" or a lowercase "New:" is visible to every reader of it.
-	 */
-	public function test_changelog_prefixes_are_canonical() {
-		$readme    = $this->readme();
-		$changelog = substr( $readme, (int) strpos( $readme, '## Changelog' ) );
-		$changelog = substr( $changelog, 0, (int) strpos( $changelog, "\n## Upgrade Notice" ) );
-
-		preg_match_all( '/^\* (.+?):/m', $changelog, $bullets );
-
-		$this->assertNotEmpty( $bullets[1], 'The changelog must carry bullets.' );
-
-		foreach ( $bullets[1] as $prefix ) {
-			$this->assertContains(
-				$prefix . ':',
-				array( 'BREAKING:', 'NEW:', 'CHANGED:', 'FIXED:', 'NOTE:' ),
-				"'{$prefix}:' is not one of the five allowed changelog prefixes."
-			);
-		}
-	}
-
-	/**
-	 * Raising the floors is a breaking change: a site below either number is
-	 * never offered the update, and is owed an explanation for why.
-	 */
-	public function test_the_raised_floors_are_in_the_upgrade_notice() {
-		$notice = substr( $this->readme(), (int) strpos( $this->readme(), '## Upgrade Notice' ) );
-
-		$this->assertStringContainsString( 'WordPress 6.8', $notice );
-		$this->assertStringContainsString( 'PHP 8.2', $notice );
-	}
-
-	/**
-	 * The plugin dropped jQuery in 2.0.0 and must not quietly reacquire it,
-	 * through a dependency array or through the script itself.
-	 */
-	public function test_no_jquery_is_enqueued() {
-		do_action( 'wp_enqueue_scripts' );
-
-		$this->assertSame(
-			array(),
-			wp_scripts()->registered['wp-showhide']->deps,
-			'The one script the plugin registers depends on nothing at all.'
-		);
-
-		$sources = wp_showhide_test_source_code();
-
-		foreach ( (array) glob( dirname( __DIR__ ) . '/js/*.js' ) as $file ) {
-			$sources .= (string) file_get_contents( $file );
-		}
-
-		$this->assertStringNotContainsStringIgnoringCase( 'jquery', $sources );
-		$this->assertStringNotContainsString( '$(', $sources );
-	}
-
-	public function test_every_directory_has_an_index_php() {
-		foreach ( $this->shipped_directories() as $directory ) {
-			$this->assertFileExists(
-				$directory . '/index.php',
-				"{$directory} ships to users and so needs an index.php silence guard."
-			);
-
-			// phpcbf cannot fix the one-line "// Silence is golden." form.
-			$guard = (string) file_get_contents( $directory . '/index.php' );
-
-			$this->assertStringContainsString( '/**', $guard, "{$directory}/index.php must use the docblock form." );
-			$this->assertStringContainsString( 'Silence is golden.', $guard );
-		}
-	}
-
-	/**
-	 * The plugin writes no option row at all, ever.
-	 *
-	 * WP-ShowHide is one shortcode and its stylesheet. It keeps no state between
-	 * requests, so under STANDARDS.md 2.1 it stores nothing -- not a settings
-	 * row, and not the version markers either. Those exist to tell a migration
-	 * what it is upgrading from, and there is no migration and nothing to
-	 * migrate.
-	 *
-	 * Booting the plugin and then finding the table empty is the whole test. If
-	 * a later change starts storing something, this fails and the upgrade
-	 * machinery has to come back with it.
-	 */
-	public function test_the_plugin_stores_nothing() {
-		do_action( 'plugins_loaded' );
-		do_action( 'init' );
-
-		$this->assertSame(
-			array(),
-			$this->stored_option_names(),
-			'WP-ShowHide wrote an option row; it is meant to store nothing at all.'
-		);
-	}
-
-	/**
-	 * A row left by a pre-release install is still cleared on uninstall.
-	 *
-	 * 3.0.0 is unreleased, and an earlier build of it did write
-	 * wp_showhide_version. Nothing writes it now, so uninstall is the only thing
-	 * that will ever remove it from a site that ran that build.
-	 */
-	public function test_uninstall_removes_a_row_left_by_a_pre_release_build() {
-		update_option( 'wp_showhide_version', array( 'plugin' => '3.0.0' ) );
-
-		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-			define( 'WP_UNINSTALL_PLUGIN', 'wp-showhide/wp-showhide.php' );
-		}
-
-		require dirname( __DIR__ ) . '/uninstall.php';
-
-		wp_cache_flush();
-
-		$this->assertSame(
-			array(),
-			$this->stored_option_names(),
-			'uninstall.php must remove every wp_showhide_* row.'
-		);
-	}
-
-	/**
-	 * No plugin in this family ships a second, mirrored stylesheet: the front
-	 * end uses CSS logical properties instead, so one sheet serves both
-	 * directions.
-	 */
-	public function test_no_rtl_stylesheet_is_registered() {
-		$root = dirname( __DIR__ );
-
-		$this->assertSame( array(), (array) glob( $root . '/*-rtl.css' ) );
-		$this->assertSame( array(), (array) glob( $root . '/css/*-rtl.css' ) );
-		$this->assertStringNotContainsString(
-			'wp_style_add_data',
-			wp_showhide_test_source_code(),
-			"No plugin registers 'rtl' style data."
-		);
-	}
-
-	/**
-	 * The catalogue comes from translate.wordpress.org, and since WP 6.7
-	 * calling load_plugin_textdomain() this early trips _doing_it_wrong.
-	 */
-	public function test_the_plugin_does_not_load_its_own_textdomain() {
-		$this->assertStringNotContainsString( 'load_plugin_textdomain', wp_showhide_test_source_code() );
-		$this->assertSame( 0, preg_match( '/^### Translations/m', $this->readme() ) );
-	}
-
-	/**
-	 * The old forums.lesterchan.net is gone, and the rest of these had drifted
-	 * to http over twenty years. Code spans are exempt: they document input.
+	 * Code spans are exempt: they document input rather than link anywhere.
 	 */
 	public function test_no_insecure_or_dead_links_remain() {
-		$readme = preg_replace( '/`[^`]*`/', '', $this->readme() );
+		$readme = (string) preg_replace( '/`[^`]*`/', '', $this->readme() );
 
 		$this->assertSame( 0, preg_match( '#http://#', $readme ), 'Every readme link must use https.' );
 		$this->assertSame( 0, preg_match( '#http://#', $this->plugin_file() ) );
 		$this->assertStringNotContainsString( 'forums.lesterchan.net', $readme );
 	}
 
-	public function test_the_gpl_licence_is_shipped() {
-		$licence = wp_showhide_test_read( 'LICENSE' );
-
-		$this->assertStringContainsString( 'GNU GENERAL PUBLIC LICENSE', $licence );
-		$this->assertStringContainsString( 'Version 2, June 1991', $licence );
-	}
-
 	/**
+	 * The licence says the same thing in all three places it is stated.
+	 *
 	 * The header says "GPLv2 or later" and composer.json says
 	 * GPL-2.0-or-later, so the comment block below the header has to offer the
 	 * later-version option too. Until 3.0.0 it did not, and the plugin shipped
@@ -524,22 +198,22 @@ class WP_ShowHide_Metadata_Test extends WP_ShowHide_TestCase {
 	}
 
 	/**
-	 * The catalogue is built by translate.wordpress.org, and Travis has been
-	 * dead for these repos for years.
+	 * The plugin writes no option row at all, ever.
+	 *
+	 * Stronger than the two shared opt-out assertions, which each name one row.
+	 * WP-ShowHide is one shortcode and its two asset files; it keeps no state
+	 * between requests, so under §2.1 it stores nothing -- not a settings row,
+	 * not the version markers, and not some third row a later change might
+	 * invent.
 	 */
-	public function test_no_abandoned_build_or_translation_artefacts_ship() {
-		$root = dirname( __DIR__ );
+	public function test_the_plugin_stores_nothing() {
+		do_action( 'plugins_loaded' );
+		do_action( 'init' );
 
-		$this->assertFileDoesNotExist( $root . '/.travis.yml' );
-		$this->assertFileDoesNotExist( $root . '/.wp-env.override.json' );
-		$this->assertDirectoryDoesNotExist( $root . '/languages' );
-
-		foreach ( array( 'pot', 'po', 'mo' ) as $extension ) {
-			$this->assertSame(
-				array(),
-				(array) glob( $root . '/*.' . $extension ),
-				"No .{$extension} files: translate.wordpress.org builds the catalogue."
-			);
-		}
+		$this->assertSame(
+			array(),
+			$this->stored_option_names(),
+			'WP-ShowHide wrote an option row; it is meant to store nothing at all.'
+		);
 	}
 }
