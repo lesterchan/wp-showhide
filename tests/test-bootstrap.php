@@ -121,11 +121,49 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	/**
 	 * Every class carries the plugin's own prefix, so nothing this plugin
 	 * declares can ever collide with another plugin's class of the same noun.
+	 *
+	 * The classes are read back out of PHP rather than listed here. A hardcoded
+	 * list asserts that the names in it start with the prefix they were written
+	 * with, which is true of any list anybody would type -- this test compared
+	 * two literals and could not fail, so a new unprefixed class would have
+	 * sailed past it. What it has to look at is what the plugin actually put in
+	 * the global namespace, which is the thing that can collide.
 	 */
 	public function test_every_class_carries_the_plugin_prefix() {
-		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template' ) as $class ) {
-			$this->assertStringStartsWith( 'WP_ShowHide', $class, $class . ' does not carry the plugin prefix.' );
+		$declared = $this->classes_declared_by_the_plugin();
+
+		// Without this the test passes by finding nothing -- a filter that
+		// matches no files is exactly how the version before it went vacuous.
+		$this->assertNotEmpty( $declared, 'No class was traced back to this plugin, so the check below looked at nothing.' );
+
+		foreach ( $declared as $class ) {
+			$this->assertStringStartsWith( 'WP_ShowHide', $class, $class . ' reaches the global namespace without the plugin prefix.' );
 		}
+	}
+
+	/**
+	 * The classes this plugin declared, found by asking each loaded class which
+	 * file it came from.
+	 *
+	 * The suite's own classes live under tests/ and are not the plugin's to
+	 * prefix, so they are left out.
+	 *
+	 * @return array<int, string> Class names.
+	 */
+	protected function classes_declared_by_the_plugin() {
+		$root  = dirname( __DIR__ ) . '/';
+		$tests = __DIR__ . '/';
+		$ours  = array();
+
+		foreach ( get_declared_classes() as $class ) {
+			$file = ( new ReflectionClass( $class ) )->getFileName();
+
+			if ( is_string( $file ) && str_starts_with( $file, $root ) && ! str_starts_with( $file, $tests ) ) {
+				$ours[] = $class;
+			}
+		}
+
+		return $ours;
 	}
 
 	/**
