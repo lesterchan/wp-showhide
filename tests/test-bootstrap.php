@@ -145,20 +145,30 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	 * The classes this plugin declared, found by asking each loaded class which
 	 * file it came from.
 	 *
-	 * The suite's own classes live under tests/ and are not the plugin's to
-	 * prefix, so they are left out.
+	 * Matched against the directories the plugin's own code lives in rather
+	 * than against the plugin root with the rest subtracted. The root holds
+	 * vendor/ under CI, and Composer declares ComposerAutoloaderInit<hash>
+	 * there -- so a root match minus tests/ failed on a class that is not this
+	 * plugin's to name and never appears on a developer's machine, where
+	 * vendor/ is absent. An allow list cannot acquire a new member by somebody
+	 * else installing something.
 	 *
 	 * @return array<int, string> Class names.
 	 */
 	protected function classes_declared_by_the_plugin() {
-		$root  = dirname( __DIR__ ) . '/';
-		$tests = __DIR__ . '/';
-		$ours  = array();
+		$root     = dirname( __DIR__ ) . '/';
+		$includes = $root . 'includes/';
+		$ours     = array();
 
 		foreach ( get_declared_classes() as $class ) {
 			$file = ( new ReflectionClass( $class ) )->getFileName();
 
-			if ( is_string( $file ) && str_starts_with( $file, $root ) && ! str_starts_with( $file, $tests ) ) {
+			if ( ! is_string( $file ) ) {
+				continue;
+			}
+
+			// includes/, plus the entry points sitting in the root itself.
+			if ( str_starts_with( $file, $includes ) || dirname( $file ) . '/' === $root ) {
 				$ours[] = $class;
 			}
 		}
