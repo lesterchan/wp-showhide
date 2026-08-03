@@ -60,14 +60,15 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_the_five_php_constants_are_defined() {
 		// Five, not six: there is no DB_VERSION, because there is no schema and
 		// no stored row for one to describe. See STANDARDS.md 2.1.
-		$this->assertSame( '3.0.0', WP_SHOWHIDE_VERSION );
-		$this->assertSame( 'wp-showhide', WP_SHOWHIDE_SLUG );
+		$this->assertSame( '3.0.0', WP_SHOWHIDE_VERSION, 'The version constant is the shipped version.' );
+		$this->assertSame( 'wp-showhide', WP_SHOWHIDE_SLUG, 'The slug constant is the plugin slug.' );
 		$this->assertSame(
 			realpath( dirname( __DIR__ ) . '/wp-showhide.php' ),
-			realpath( WP_SHOWHIDE_MAIN_FILE )
+			realpath( WP_SHOWHIDE_MAIN_FILE ),
+			'The main file constant resolves to the plugin file itself.'
 		);
-		$this->assertSame( realpath( dirname( __DIR__ ) ), realpath( WP_SHOWHIDE_DIR ) );
-		$this->assertStringEndsWith( '/wp-showhide/', WP_SHOWHIDE_URL );
+		$this->assertSame( realpath( dirname( __DIR__ ) ), realpath( WP_SHOWHIDE_DIR ), 'The directory constant resolves to the plugin directory.' );
+		$this->assertStringEndsWith( '/wp-showhide/', WP_SHOWHIDE_URL, 'The URL constant ends in the plugin directory with its trailing slash.' );
 	}
 
 	/**
@@ -105,7 +106,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 
 		sort( $root );
 
-		$this->assertSame( array( 'index.php', 'uninstall.php', 'wp-showhide.php' ), $root );
+		$this->assertSame( array( 'index.php', 'uninstall.php', 'wp-showhide.php' ), $root, 'Only entry points live in the root; everything else is in a subdirectory.' );
 	}
 
 	public function test_every_class_is_loaded() {
@@ -114,7 +115,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	}
 
 	public function test_get_instance_is_a_singleton() {
-		$this->assertSame( WP_ShowHide::get_instance(), WP_ShowHide::get_instance() );
+		$this->assertSame( WP_ShowHide::get_instance(), WP_ShowHide::get_instance(), 'get_instance() hands back the same object rather than building a second.' );
 	}
 
 	/**
@@ -152,7 +153,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	 */
 	public function test_the_old_global_functions_are_gone( $function_name ) {
 		$this->assertFalse( function_exists( $function_name ), $function_name . '() was removed in 3.0.0.' );
-		$this->assertStringNotContainsString( $function_name . '(', wp_showhide_test_source_code() );
+		$this->assertStringNotContainsString( $function_name . '(', wp_showhide_test_source_code(), 'The withdrawn ' . $function_name . '() is still called somewhere in the source.' );
 	}
 
 	/**
@@ -162,7 +163,8 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 		$this->assertFalse( has_action( 'wp_enqueue_scripts', 'showhide_scripts' ), 'Nothing is left hooked under the withdrawn function name.' );
 		$this->assertSame(
 			array( WP_ShowHide::get_instance(), 'shortcode' ),
-			$GLOBALS['shortcode_tags']['showhide']
+			$GLOBALS['shortcode_tags']['showhide'],
+			'The shortcode is registered against the instance method, not a loose function.'
 		);
 	}
 
@@ -184,7 +186,8 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_no_textdomain_is_loaded_manually() {
 		$this->assertStringNotContainsString(
 			'load_plugin_textdomain',
-			wp_showhide_test_source_code()
+			wp_showhide_test_source_code(),
+			'No textdomain is loaded by hand; WordPress has done that since 4.6.'
 		);
 	}
 

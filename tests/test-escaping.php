@@ -43,9 +43,9 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 
 		$xpath = wp_showhide_test_xpath( $html );
 
-		$this->assertSame( 0, $xpath->query( '//script' )->length );
-		$this->assertSame( 0, $xpath->query( '//img' )->length );
-		$this->assertSame( 1, $xpath->query( '//button' )->length );
+		$this->assertSame( 0, $xpath->query( '//script' )->length, 'The payload produced no script element.' );
+		$this->assertSame( 0, $xpath->query( '//img' )->length, 'It produced no image element either, which is the onerror route.' );
+		$this->assertSame( 1, $xpath->query( '//button' )->length, 'Exactly one button, so nothing was appended alongside it.' );
 		$this->assertNull( wp_showhide_test_attr( $html, '//button', 'onmouseover' ), 'The more text cannot break out and add an event handler to the button.' );
 
 		// The payload survives as inert text, which is the point: it is a
@@ -54,7 +54,8 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 		// resolves it once on the way back out.
 		$this->assertSame(
 			html_entity_decode( $label, ENT_QUOTES, 'UTF-8' ),
-			wp_showhide_test_attr( $html, '//button', 'data-sh-more' )
+			wp_showhide_test_attr( $html, '//button', 'data-sh-more' ),
+			'The label survives as text in the dataset, decoded once and no more.'
 		);
 	}
 
@@ -68,12 +69,13 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 
 		$xpath = wp_showhide_test_xpath( $html );
 
-		$this->assertSame( 0, $xpath->query( '//script' )->length );
-		$this->assertSame( 0, $xpath->query( '//img' )->length );
-		$this->assertSame( 1, $xpath->query( '//button' )->length );
+		$this->assertSame( 0, $xpath->query( '//script' )->length, 'The payload produced no script element.' );
+		$this->assertSame( 0, $xpath->query( '//img' )->length, 'It produced no image element either.' );
+		$this->assertSame( 1, $xpath->query( '//button' )->length, 'Exactly one button, so nothing was appended alongside it.' );
 		$this->assertSame(
 			html_entity_decode( $label, ENT_QUOTES, 'UTF-8' ),
-			wp_showhide_test_attr( $html, '//button', 'data-sh-less' )
+			wp_showhide_test_attr( $html, '//button', 'data-sh-less' ),
+			'The label survives as text in the dataset, decoded once and no more.'
 		);
 	}
 
@@ -86,9 +88,9 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 
 		$xpath = wp_showhide_test_xpath( $html );
 
-		$this->assertSame( 0, $xpath->query( '//img' )->length );
+		$this->assertSame( 0, $xpath->query( '//img' )->length, 'A type carrying markup produces no element of its own.' );
 		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'onclick' ), 'The type cannot break out and add an event handler to the link.' );
-		$this->assertSame( 'ximgsrcyonclickalert1-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'ximgsrcyonclickalert1-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ), 'The type is stripped to id-safe characters rather than escaped and kept.' );
 	}
 
 	/**
@@ -100,10 +102,11 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 	public function test_label_decodes_identically_in_the_text_and_the_dataset() {
 		$html = do_shortcode( '[showhide more_text="Tom &amp; Jerry (%s)"]one two[/showhide]' );
 
-		$this->assertSame( 'Tom & Jerry (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
+		$this->assertSame( 'Tom & Jerry (2)', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ), 'The dataset carries the decoded label.' );
 		$this->assertSame(
 			'Tom & Jerry (2)',
-			trim( wp_showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent )
+			trim( wp_showhide_test_xpath( $html )->query( '//button' )->item( 0 )->textContent ),
+			'The visible text decodes to the same string, so the two never disagree.'
 		);
 	}
 
@@ -115,6 +118,6 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 	public function test_content_html_is_preserved() {
 		$html = do_shortcode( '[showhide]<p class="intro">Hello <em>world</em></p>[/showhide]' );
 
-		$this->assertStringContainsString( '<p class="intro">Hello <em>world</em></p>', $html );
+		$this->assertStringContainsString( '<p class="intro">Hello <em>world</em></p>', $html, 'Markup inside the content is preserved; only the labels are escaped.' );
 	}
 }

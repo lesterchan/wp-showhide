@@ -35,14 +35,16 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 
 		$this->assertSame(
 			'pressrelease-link-' . $this->post_id,
-			wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' )
+			wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ),
+			'The link element survives the whole the_content chain with its id intact.'
 		);
 		$this->assertSame(
 			'pressrelease-content-' . $this->post_id,
-			wp_showhide_test_attr( $html, '//button', 'aria-controls' )
+			wp_showhide_test_attr( $html, '//button', 'aria-controls' ),
+			'The button still points at the content element after the chain.'
 		);
-		$this->assertStringContainsString( 'Intro paragraph.', $html );
-		$this->assertStringContainsString( 'Outro paragraph.', $html );
+		$this->assertStringContainsString( 'Intro paragraph.', $html, 'The paragraph before the shortcode survives.' );
+		$this->assertStringContainsString( 'Outro paragraph.', $html, 'The paragraph after it survives too.' );
 	}
 
 	/**
@@ -58,8 +60,8 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 		wp_print_footer_scripts();
 		$footer = ob_get_clean();
 
-		$this->assertStringContainsString( 'js/wp-showhide.js', $footer );
-		$this->assertStringNotContainsString( 'jquery', strtolower( $footer ) );
+		$this->assertStringContainsString( 'js/wp-showhide.js', $footer, 'The script reaches the footer of a page that used the shortcode.' );
+		$this->assertStringNotContainsString( 'jquery', strtolower( $footer ), 'It reaches the footer without dragging jQuery there.' );
 	}
 
 	public function test_nothing_is_printed_for_a_page_without_the_shortcode() {
@@ -71,7 +73,7 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 		wp_print_footer_scripts();
 		$footer = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'js/wp-showhide.js', $footer );
+		$this->assertStringNotContainsString( 'js/wp-showhide.js', $footer, 'A page without the shortcode prints no script at all.' );
 	}
 
 	/**
@@ -92,7 +94,7 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 		wp_print_styles();
 		$styles = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'css/wp-showhide.css', $styles );
+		$this->assertStringNotContainsString( 'css/wp-showhide.css', $styles, 'A theme dequeue keeps the stylesheet off the page.' );
 	}
 
 	/**
@@ -122,9 +124,9 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 			$ids[] = $node->getAttribute( 'id' );
 		}
 
-		$this->assertContains( 'outer-link-' . $this->post_id, $ids );
-		$this->assertContains( 'inner-link-' . $this->post_id, $ids );
-		$this->assertSame( $ids, array_unique( $ids ) );
+		$this->assertContains( 'outer-link-' . $this->post_id, $ids, 'The outer block gets its own element.' );
+		$this->assertContains( 'inner-link-' . $this->post_id, $ids, 'The inner block gets its own.' );
+		$this->assertSame( $ids, array_unique( $ids ), 'Nested blocks share no id, which would break aria-controls for both.' );
 	}
 
 	/**
@@ -139,8 +141,8 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 		$GLOBALS['post'] = get_post( $other_id );
 		$second          = $this->the_content( '[showhide type="shared"]one two[/showhide]' );
 
-		$this->assertSame( 'shared-link-' . $this->post_id, wp_showhide_test_attr( $first, '//div[contains(@class,"sh-link")]', 'id' ) );
-		$this->assertSame( 'shared-link-' . $other_id, wp_showhide_test_attr( $second, '//div[contains(@class,"sh-link")]', 'id' ) );
+		$this->assertSame( 'shared-link-' . $this->post_id, wp_showhide_test_attr( $first, '//div[contains(@class,"sh-link")]', 'id' ), 'The first post numbers from its own id.' );
+		$this->assertSame( 'shared-link-' . $other_id, wp_showhide_test_attr( $second, '//div[contains(@class,"sh-link")]', 'id' ), 'The second starts again rather than continuing the first post count.' );
 	}
 
 	/**
@@ -150,7 +152,7 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 	public function test_a_label_without_a_placeholder_is_left_alone() {
 		$html = $this->the_content( '[showhide more_text="Read on" less_text="Enough"]one two[/showhide]' );
 
-		$this->assertSame( 'Read on', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ) );
-		$this->assertSame( 'Enough', wp_showhide_test_attr( $html, '//button', 'data-sh-less' ) );
+		$this->assertSame( 'Read on', wp_showhide_test_attr( $html, '//button', 'data-sh-more' ), 'A label with no placeholder is used as written.' );
+		$this->assertSame( 'Enough', wp_showhide_test_attr( $html, '//button', 'data-sh-less' ), 'The collapse label is used as written too.' );
 	}
 }

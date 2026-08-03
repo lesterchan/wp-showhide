@@ -125,7 +125,7 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 	 * No Translations section: translate.wordpress.org is the only route in.
 	 */
 	public function test_the_readme_has_no_translations_section() {
-		$this->assertSame( 0, preg_match( '/^### Translations/m', $this->readme() ) );
+		$this->assertSame( 0, preg_match( '/^### Translations/m', $this->readme() ), 'The readme carries no Translations section; wordpress.org supplies one.' );
 	}
 
 	/**
@@ -160,10 +160,11 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 
 		preg_match_all( '/^### (.+?)\s*$/m', $description, $headings );
 
-		$this->assertSame( 'Donations', end( $headings[1] ) );
+		$this->assertSame( 'Donations', end( $headings[1] ), 'Donations is the last heading, so it closes the description.' );
 		$this->assertStringContainsString(
 			'I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.',
-			$description
+			$description,
+			'The Donations paragraph is the collection wording, word for word.'
 		);
 	}
 
@@ -176,8 +177,8 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 		$readme = (string) preg_replace( '/`[^`]*`/', '', $this->readme() );
 
 		$this->assertSame( 0, preg_match( '#http://#', $readme ), 'Every readme link must use https.' );
-		$this->assertSame( 0, preg_match( '#http://#', $this->plugin_file() ) );
-		$this->assertStringNotContainsString( 'forums.lesterchan.net', $readme );
+		$this->assertSame( 0, preg_match( '#http://#', $this->plugin_file() ), 'The plugin file links over https only.' );
+		$this->assertStringNotContainsString( 'forums.lesterchan.net', $readme, 'The retired support forum is not linked; it no longer exists.' );
 	}
 
 	/**
@@ -189,12 +190,13 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 	 * a licence statement that contradicted itself twice over.
 	 */
 	public function test_the_licence_comment_offers_the_later_version_option() {
-		$this->assertSame( 'GPLv2 or later', $this->header_field( 'License' ) );
+		$this->assertSame( 'GPLv2 or later', $this->header_field( 'License' ), 'The header offers the later-version option.' );
 		$this->assertStringContainsString(
 			'either version 2 of the License, or' . "\n\t(at your option) any later version.",
-			$this->plugin_file()
+			$this->plugin_file(),
+			'The licence comment offers it too, so the two cannot disagree.'
 		);
-		$this->assertStringContainsString( '"license": "GPL-2.0-or-later"', wp_showhide_test_read( 'composer.json' ) );
+		$this->assertStringContainsString( '"license": "GPL-2.0-or-later"', wp_showhide_test_read( 'composer.json' ), 'composer.json says the same thing in SPDX form.' );
 	}
 
 	/**

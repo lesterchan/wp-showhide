@@ -36,7 +36,8 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	public function test_the_script_is_the_shipped_file() {
 		$this->assertSame(
 			plugins_url( 'js/wp-showhide.js', dirname( __DIR__ ) . '/wp-showhide.php' ),
-			wp_scripts()->registered['wp-showhide']->src
+			wp_scripts()->registered['wp-showhide']->src,
+			'The registered source is the shipped file, resolved from the plugin root.'
 		);
 		$this->assertFileExists( dirname( __DIR__ ) . '/js/wp-showhide.js', 'The path the script is registered at is a file that actually ships.' );
 	}
@@ -48,7 +49,8 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	public function test_the_style_is_the_shipped_file() {
 		$this->assertSame(
 			plugins_url( 'css/wp-showhide.css', dirname( __DIR__ ) . '/wp-showhide.php' ),
-			wp_styles()->registered['wp-showhide']->src
+			wp_styles()->registered['wp-showhide']->src,
+			'The registered source is the shipped file, resolved from the plugin root.'
 		);
 		$this->assertFileExists( dirname( __DIR__ ) . '/css/wp-showhide.css', 'The path the stylesheet is registered at is a file that actually ships.' );
 	}
@@ -58,7 +60,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	 * reacquire it.
 	 */
 	public function test_script_does_not_depend_on_jquery() {
-		$this->assertSame( array(), wp_scripts()->registered['wp-showhide']->deps );
+		$this->assertSame( array(), wp_scripts()->registered['wp-showhide']->deps, 'The script declares no dependencies, so nothing is pulled in behind it.' );
 
 		do_shortcode( '[showhide]one two[/showhide]' );
 
@@ -72,10 +74,10 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	public function test_the_script_file_carries_the_toggle_handler() {
 		$script = file_get_contents( dirname( __DIR__ ) . '/js/wp-showhide.js' );
 
-		$this->assertStringContainsString( 'sh-toggle', $script );
-		$this->assertStringContainsString( 'aria-expanded', $script );
-		$this->assertStringNotContainsString( 'jQuery', $script );
-		$this->assertStringNotContainsString( '$(', $script );
+		$this->assertStringContainsString( 'sh-toggle', $script, 'The shipped script binds the toggle class the markup carries.' );
+		$this->assertStringContainsString( 'aria-expanded', $script, 'The shipped script maintains aria-expanded, which is what a screen reader reads.' );
+		$this->assertStringNotContainsString( 'jQuery', $script, 'The script is vanilla; jQuery is not a dependency this plugin adds.' );
+		$this->assertStringNotContainsString( '$(', $script, 'No jQuery shorthand either, which would fail silently without the library.' );
 	}
 
 	/**
@@ -103,9 +105,9 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	public function test_the_stylesheet_is_scoped_and_direction_neutral() {
 		$css = file_get_contents( dirname( __DIR__ ) . '/css/wp-showhide.css' );
 
-		$this->assertStringContainsString( '.wp-showhide .sh-toggle', $css );
-		$this->assertStringContainsString( '.wp-showhide.sh-content[hidden]', $css );
-		$this->assertStringNotContainsString( '!important', $css );
+		$this->assertStringContainsString( '.wp-showhide .sh-toggle', $css, 'The stylesheet scopes the toggle rule under the plugin root class.' );
+		$this->assertStringContainsString( '.wp-showhide.sh-content[hidden]', $css, 'The stylesheet styles the hidden state through the attribute, not a class.' );
+		$this->assertStringNotContainsString( '!important', $css, 'No rule is forced, so a theme can override any of this.' );
 
 		foreach ( array( 'margin-left', 'margin-right', 'padding-left', 'padding-right', 'border-left', 'border-right', 'float:' ) as $physical ) {
 			$this->assertStringNotContainsString(
@@ -133,7 +135,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	public function test_script_is_printed_in_the_footer() {
 		// wp_register_script()'s $in_footer argument is recorded as the
 		// dependency's "group" data, not as a property on the registration.
-		$this->assertSame( 1, wp_scripts()->get_data( 'wp-showhide', 'group' ) );
+		$this->assertSame( 1, wp_scripts()->get_data( 'wp-showhide', 'group' ), 'The script is grouped into the footer, so it does not block the page.' );
 	}
 
 	public function test_asset_versions_track_the_plugin_version() {
@@ -142,7 +144,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 			array( 'Version' => 'Version' )
 		)['Version'];
 
-		$this->assertSame( $version, wp_scripts()->registered['wp-showhide']->ver );
-		$this->assertSame( $version, wp_styles()->registered['wp-showhide']->ver );
+		$this->assertSame( $version, wp_scripts()->registered['wp-showhide']->ver, 'The script version tracks the plugin version, so an upgrade busts the cache.' );
+		$this->assertSame( $version, wp_styles()->registered['wp-showhide']->ver, 'The stylesheet version tracks it too.' );
 	}
 }
