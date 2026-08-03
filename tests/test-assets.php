@@ -25,8 +25,8 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	}
 
 	public function test_script_and_style_are_registered() {
-		$this->assertTrue( wp_script_is( 'wp-showhide', 'registered' ) );
-		$this->assertTrue( wp_style_is( 'wp-showhide', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'wp-showhide', 'registered' ), 'The script is registered under the plugin slug.' );
+		$this->assertTrue( wp_style_is( 'wp-showhide', 'registered' ), 'The stylesheet is registered under the plugin slug.' );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 			plugins_url( 'js/wp-showhide.js', dirname( __DIR__ ) . '/wp-showhide.php' ),
 			wp_scripts()->registered['wp-showhide']->src
 		);
-		$this->assertFileExists( dirname( __DIR__ ) . '/js/wp-showhide.js' );
+		$this->assertFileExists( dirname( __DIR__ ) . '/js/wp-showhide.js', 'The path the script is registered at is a file that actually ships.' );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 			plugins_url( 'css/wp-showhide.css', dirname( __DIR__ ) . '/wp-showhide.php' ),
 			wp_styles()->registered['wp-showhide']->src
 		);
-		$this->assertFileExists( dirname( __DIR__ ) . '/css/wp-showhide.css' );
+		$this->assertFileExists( dirname( __DIR__ ) . '/css/wp-showhide.css', 'The path the stylesheet is registered at is a file that actually ships.' );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 
 		do_shortcode( '[showhide]one two[/showhide]' );
 
-		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jquery', 'enqueued' ), 'Registering this plugin does not drag jQuery onto the page.' );
 	}
 
 	/**
@@ -83,8 +83,8 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	 * it, so a Content-Security-Policy without 'unsafe-inline' is enough.
 	 */
 	public function test_the_script_carries_no_inline_addition() {
-		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'after' ) );
-		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'before' ) );
+		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'after' ), 'Nothing is appended inline to the shipped script.' );
+		$this->assertFalse( wp_scripts()->get_data( 'wp-showhide', 'before' ), 'Nothing is prepended inline to the shipped script.' );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	 * a native button before the CSS arrives.
 	 */
 	public function test_style_is_enqueued_unconditionally() {
-		$this->assertTrue( wp_style_is( 'wp-showhide', 'enqueued' ) );
+		$this->assertTrue( wp_style_is( 'wp-showhide', 'enqueued' ), 'The stylesheet is enqueued whether or not a shortcode ran.' );
 	}
 
 	/**
@@ -117,13 +117,13 @@ class WP_ShowHide_Assets_Test extends WP_ShowHide_TestCase {
 	}
 
 	public function test_script_is_not_enqueued_without_the_shortcode() {
-		$this->assertFalse( wp_script_is( 'wp-showhide', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'wp-showhide', 'enqueued' ), 'With no shortcode on the page, the script stays unenqueued.' );
 	}
 
 	public function test_script_is_enqueued_by_the_shortcode() {
 		do_shortcode( '[showhide]one two[/showhide]' );
 
-		$this->assertTrue( wp_script_is( 'wp-showhide', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'wp-showhide', 'enqueued' ), 'Rendering the shortcode is what enqueues the script.' );
 	}
 
 	/**

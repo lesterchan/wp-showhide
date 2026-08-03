@@ -42,7 +42,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_every_code_file_refuses_direct_access( $file ) {
 		$path = dirname( __DIR__ ) . '/' . $file;
 
-		$this->assertFileExists( $path );
+		$this->assertFileExists( $path, $file . ' does not exist, so the guard assertion below would pass on an empty string.' );
 		$this->assertMatchesRegularExpression(
 			"/defined\(\s*'ABSPATH'\s*\)\s*\|\|\s*exit;/",
 			php_strip_whitespace( $path ),
@@ -109,8 +109,8 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	}
 
 	public function test_every_class_is_loaded() {
-		$this->assertTrue( class_exists( 'WP_ShowHide' ) );
-		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ) );
+		$this->assertTrue( class_exists( 'WP_ShowHide' ), 'The main class is loaded by the bootstrap.' );
+		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ), 'The template class is loaded by the bootstrap.' );
 	}
 
 	public function test_get_instance_is_a_singleton() {
@@ -123,7 +123,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	 */
 	public function test_every_class_carries_the_plugin_prefix() {
 		foreach ( array( 'WP_ShowHide', 'WP_ShowHide_Template' ) as $class ) {
-			$this->assertStringStartsWith( 'WP_ShowHide', $class );
+			$this->assertStringStartsWith( 'WP_ShowHide', $class, $class . ' does not carry the plugin prefix.' );
 		}
 	}
 
@@ -159,7 +159,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	 * The plugin registers itself, so nothing is hooked by the old names.
 	 */
 	public function test_nothing_is_hooked_by_a_removed_function_name() {
-		$this->assertFalse( has_action( 'wp_enqueue_scripts', 'showhide_scripts' ) );
+		$this->assertFalse( has_action( 'wp_enqueue_scripts', 'showhide_scripts' ), 'Nothing is left hooked under the withdrawn function name.' );
 		$this->assertSame(
 			array( WP_ShowHide::get_instance(), 'shortcode' ),
 			$GLOBALS['shortcode_tags']['showhide']
@@ -172,8 +172,8 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_main_file_declares_no_functions_or_classes() {
 		$code = php_strip_whitespace( dirname( __DIR__ ) . '/wp-showhide.php' );
 
-		$this->assertDoesNotMatchRegularExpression( '/\bfunction\s+\w+\s*\(/', $code );
-		$this->assertDoesNotMatchRegularExpression( '/\bclass\s+\w+/', $code );
+		$this->assertDoesNotMatchRegularExpression( '/\bfunction\s+\w+\s*\(/', $code, 'The main file declares no functions; they belong to the classes.' );
+		$this->assertDoesNotMatchRegularExpression( '/\bclass\s+\w+/', $code, 'The main file declares no classes; each lives in its own file.' );
 	}
 
 	/**

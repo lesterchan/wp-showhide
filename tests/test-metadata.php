@@ -118,7 +118,7 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 		$tags = $this->readme_field( 'Tags' );
 
 		$this->assertNotEmpty( $tags, 'The readme must carry a Tags line.' );
-		$this->assertLessThanOrEqual( 5, count( explode( ',', $tags ) ) );
+		$this->assertLessThanOrEqual( 5, count( explode( ',', $tags ) ), 'wordpress.org reads at most five tags, so a sixth is silently dropped.' );
 	}
 
 	/**

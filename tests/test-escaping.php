@@ -46,7 +46,7 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 		$this->assertSame( 0, $xpath->query( '//script' )->length );
 		$this->assertSame( 0, $xpath->query( '//img' )->length );
 		$this->assertSame( 1, $xpath->query( '//button' )->length );
-		$this->assertNull( wp_showhide_test_attr( $html, '//button', 'onmouseover' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//button', 'onmouseover' ), 'The more text cannot break out and add an event handler to the button.' );
 
 		// The payload survives as inert text, which is the point: it is a
 		// label. Decoded, because esc_attr() does not double-encode, so an
@@ -87,7 +87,7 @@ class WP_ShowHide_Escaping_Test extends WP_ShowHide_TestCase {
 		$xpath = wp_showhide_test_xpath( $html );
 
 		$this->assertSame( 0, $xpath->query( '//img' )->length );
-		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'onclick' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'onclick' ), 'The type cannot break out and add an event handler to the link.' );
 		$this->assertSame( 'ximgsrcyonclickalert1-link-' . $this->post_id, wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'id' ) );
 	}
 

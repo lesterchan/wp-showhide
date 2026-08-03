@@ -14,14 +14,14 @@
 class WP_ShowHide_Shortcode_Test extends WP_ShowHide_TestCase {
 
 	public function test_shortcode_is_registered() {
-		$this->assertTrue( shortcode_exists( 'showhide' ) );
+		$this->assertTrue( shortcode_exists( 'showhide' ), 'The showhide shortcode is registered.' );
 	}
 
 	public function test_default_render_is_hidden() {
 		$html = $this->render( '[showhide]Hello world[/showhide]' );
 
 		$this->assertSame( 'false', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
-		$this->assertNotNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
+		$this->assertNotNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ), 'The content carries the hidden attribute by default.' );
 		$this->assertStringContainsString( 'sh-hide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
 		$this->assertStringContainsString( 'sh-hide', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
@@ -30,7 +30,7 @@ class WP_ShowHide_Shortcode_Test extends WP_ShowHide_TestCase {
 		$html = $this->render( '[showhide hidden="no"]Hello world[/showhide]' );
 
 		$this->assertSame( 'true', wp_showhide_test_attr( $html, '//button', 'aria-expanded' ) );
-		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ) );
+		$this->assertNull( wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'hidden' ), 'hidden=no renders the content expanded.' );
 		$this->assertStringContainsString( 'sh-show', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-link")]', 'class' ) );
 		$this->assertStringContainsString( 'sh-show', wp_showhide_test_attr( $html, '//div[contains(@class,"sh-content")]', 'class' ) );
 	}
@@ -297,7 +297,7 @@ class WP_ShowHide_Shortcode_Test extends WP_ShowHide_TestCase {
 			$ids[] = $node->getAttribute( 'id' );
 		}
 
-		$this->assertCount( 6, $ids );
+		$this->assertCount( 6, $ids, 'Three shortcodes produce two ids each, a link and a content panel.' );
 		$this->assertSame( $ids, array_unique( $ids ) );
 		$this->assertContains( 'pressrelease-link-' . $this->post_id, $ids );
 		$this->assertContains( 'pressrelease-link-' . $this->post_id . '-2', $ids );

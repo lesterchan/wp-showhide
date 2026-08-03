@@ -82,11 +82,11 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 	public function test_the_style_can_be_dequeued_by_a_theme() {
 		do_action( 'wp_enqueue_scripts' );
 
-		$this->assertTrue( wp_style_is( 'wp-showhide', 'enqueued' ) );
+		$this->assertTrue( wp_style_is( 'wp-showhide', 'enqueued' ), 'The style is enqueued to begin with, so the dequeue below has something to remove.' );
 
 		wp_dequeue_style( 'wp-showhide' );
 
-		$this->assertFalse( wp_style_is( 'wp-showhide', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-showhide', 'enqueued' ), 'A theme dequeue actually removes it.' );
 
 		ob_start();
 		wp_print_styles();
@@ -100,9 +100,9 @@ class WP_ShowHide_Integration_Test extends WP_ShowHide_TestCase {
 	 * for a front end toggle.
 	 */
 	public function test_assets_are_not_registered_in_the_admin() {
-		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( WP_ShowHide::get_instance(), 'register_assets' ) ) );
-		$this->assertFalse( wp_script_is( 'wp-showhide', 'registered' ) );
-		$this->assertFalse( wp_style_is( 'wp-showhide', 'registered' ) );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', array( WP_ShowHide::get_instance(), 'register_assets' ) ), 'The register callback is not hooked on admin requests at all.' );
+		$this->assertFalse( wp_script_is( 'wp-showhide', 'registered' ), 'No script is registered in the admin.' );
+		$this->assertFalse( wp_style_is( 'wp-showhide', 'registered' ), 'No stylesheet is registered in the admin.' );
 	}
 
 	/**
