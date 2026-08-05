@@ -2,22 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-WP-ShowHide follows `_standards/STANDARDS.md` in the parent folder, which is the
-contract for all nineteen plugins in the collection. Where this file and that
-one disagree, that one wins.
-
 ## What it is
 
 One shortcode. `[showhide]…[/showhide]` returns a toggle button and a content
 block, with a word count folded into the button's label. A stylesheet, a
 delegated click handler, and nothing else — no admin screen, no settings, no
-options, no database. It is the smallest plugin in the collection at ~200 lines
-of `includes/`.
+options, no database, in about 200 lines of `includes/`.
 
 ## Storage: none
 
-Not even the version row (§2.1). `uninstall.php` deletes `wp_showhide_version`
-only for sites that ran an early unreleased 3.0.0 build; nothing writes it now.
+Not even a version marker row: a plugin with no settings and no tables has
+nothing to migrate and nothing to stamp. `uninstall.php` deletes
+`wp_showhide_version` only for sites that ran an early unreleased 3.0.0 build;
+nothing writes it now.
 
 ## Traps
 
@@ -26,8 +23,8 @@ only for sites that ran an early unreleased 3.0.0 build; nothing writes it now.
   `.sh-content` div. It looks like a copy-paste and is the only way to scope the
   stylesheet without changing markup a theme may already style.
 * **The class names, element IDs and the three `sh-link:*` DOM events are public
-  API.** `sh-link:more`, `sh-link:less` and `sh-link:toggle` predate the
-  collection's `{{UNDER}}_` hook-prefix rule and keep their spelling; the 3.0.0
+  API.** `sh-link:more`, `sh-link:less` and `sh-link:toggle` keep their historic
+  spelling rather than taking the plugin's `wp_showhide_` prefix; the 3.0.0
   Upgrade Notice promises posts need no editing.
 * **The style is enqueued unconditionally, the script only by the shortcode.**
   Deliberate asymmetry (`class-wp-showhide.php::register_assets()`): the sheet
@@ -54,22 +51,25 @@ only for sites that ran an early unreleased 3.0.0 build; nothing writes it now.
 
 ## Tests
 
-`tests/test-shortcode.php` covers attribute handling and the instance
-numbering; `tests/test-escaping.php` is the §7.2.4 regression guard for the
-attribute values that reach `id`/`class`; `tests/e2e/showhide.spec.js` is the
-only place the toggle's `aria-expanded` and event dispatch are actually
-exercised.
+`bin/test.sh` runs PHPUnit, `bin/test-multisite.sh` the network pass, and
+`bin/test-e2e.sh` the Playwright suite. **Run them rather than trusting a note
+about their last result** — CI is the authority, and this file cannot be.
 
-**`tests/test-metadata.php` here is historically significant.** §7.2 says the
-idea and several assertions came from this file, but that its own names and
-structure lose to the standard — the file predated §7.1 and declared
-`class Test_ShowHide_Metadata extends WP_UnitTestCase`. It now extends the
-shared `Plugin_Metadata_TestCase` like everyone else. Do not treat it as the
-reference copy.
+`tests/test-shortcode.php` covers attribute handling and the instance numbering;
+`tests/test-escaping.php` is the regression guard for the attribute values that
+reach `id`/`class`; `tests/e2e/showhide.spec.js` is the only place the toggle's
+`aria-expanded` and event dispatch are actually exercised.
+
+**Scan the plugin's own files with an allow list, not a deny list.** A metadata
+test that walked everything under the plugin root and subtracted `tests/` found
+two classes locally and three under CI, where `composer install` has run and
+`vendor/composer/autoload_real.php` declares a `ComposerAutoloaderInit<hash>`
+class inside the plugin directory. Name `includes/` plus the root entry points
+instead; a deny list acquires a new member every time somebody installs
+something.
 
 ## Known discrepancy
 
 The README's 3.0.0 Upgrade Notice ends "The plugin now stores one row,
 `wp_showhide_version`, and deletes it on uninstall." That is untrue — commit
-`0d31075` ("Store nothing at all") removed it. wp-relativedate and wp-serverinfo
-carry the same stale sentence.
+`0d31075` ("Store nothing at all") removed it.
