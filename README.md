@@ -86,9 +86,8 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 
 ## Screenshots
 
-1. Show More - Press Release
-2. Hide More - Press Release
-3. Editor - Short Code
+1. Three blocks on a page, two of them closed
+2. The same page with a block opened
 
 ## Changelog
 ### 3.0.0
