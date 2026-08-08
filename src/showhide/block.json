@@ -1,0 +1,38 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "wp-showhide/showhide",
+	"version": "3.0.0",
+	"title": "Show/Hide",
+	"category": "text",
+	"icon": "hidden",
+	"description": "Hides its content behind a button that counts the words it is hiding.",
+	"keywords": [ "show", "hide", "toggle", "spoiler" ],
+	"textdomain": "wp-showhide",
+	"attributes": {
+		"type": {
+			"type": "string",
+			"default": "pressrelease"
+		},
+		"moreText": {
+			"type": "string",
+			"default": ""
+		},
+		"lessText": {
+			"type": "string",
+			"default": ""
+		},
+		"hidden": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"multiple": true,
+		"reusable": false,
+		"className": false,
+		"customClassName": false
+	},
+	"editorScript": "file:./index.js"
+}

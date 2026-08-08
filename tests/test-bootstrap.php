@@ -112,6 +112,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 	public function test_every_class_is_loaded() {
 		$this->assertTrue( class_exists( 'WP_ShowHide' ), 'The main class is loaded by the bootstrap.' );
 		$this->assertTrue( class_exists( 'WP_ShowHide_Template' ), 'The template class is loaded by the bootstrap.' );
+		$this->assertTrue( class_exists( 'WP_ShowHide_Blocks' ), 'The block class is loaded by the bootstrap.' );
 	}
 
 	public function test_get_instance_is_a_singleton() {

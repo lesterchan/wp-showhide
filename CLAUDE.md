@@ -4,10 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What it is
 
-One shortcode. `[showhide]…[/showhide]` returns a toggle button and a content
-block, with a word count folded into the button's label. A stylesheet, a
-delegated click handler, and nothing else — no admin screen, no settings, no
-options, no database, in about 200 lines of `includes/`.
+One shortcode and one block over one renderer. `[showhide]…[/showhide]` returns
+a toggle button and a content block, with a word count folded into the button's
+label; `wp-showhide/showhide` wraps its inner blocks in the same two elements. A
+stylesheet, a delegated click handler, and nothing else — no admin screen, no
+settings, no options, no database.
+
+`src/` is the block source and is committed; `build/` is what `bin/build`
+compiles it into, is gitignored, and is what actually ships — a checkout that
+has never been built has no block, which is why the test scripts build first.
 
 ## Storage: none
 
@@ -26,11 +31,31 @@ nothing writes it now.
   API.** `sh-link:more`, `sh-link:less` and `sh-link:toggle` keep their historic
   spelling rather than taking the plugin's `wp_showhide_` prefix; the 3.0.0
   Upgrade Notice promises posts need no editing.
-* **The style is enqueued unconditionally, the script only by the shortcode.**
-  Deliberate asymmetry (`class-wp-showhide.php::register_assets()`): the sheet
-  must be in the head or the toggle flashes as a native button before CSS
-  arrives; the script is registered in the footer and enqueued from
-  `shortcode()`, so only pages that use the shortcode pay for it.
+* **The style is enqueued unconditionally, the script only by whatever rendered
+  a toggle.** Deliberate asymmetry (`class-wp-showhide.php::register_assets()`):
+  the sheet must be in the head or the toggle flashes as a native button before
+  CSS arrives; the script is registered in the footer and enqueued from
+  `shortcode()` **and from the block's render callback**, so only pages that
+  render a toggle pay for it. That second call site is the one a change is
+  likely to drop, and dropping it ships perfect markup with a dead button —
+  which no assertion about markup can see, so both are pinned in
+  `tests/test-blocks.php` and the click is exercised in
+  `tests/e2e/blocks.spec.js`.
+* **The block is dynamic *and* saves content, because the shortcode encloses.**
+  Its `save` returns `<InnerBlocks.Content />` — a `save` returning null would
+  serialise the block self-closing and lose the children — so post_content holds
+  the writer's blocks, WordPress renders them, and the render callback is handed
+  the result as `$content`. Only the wrapper is decided at render time. No
+  `ServerSideRender`, no wrapper element of the block's own in either half, and
+  `className` support is off: there is nothing saved for a class to land on.
+* **The block's boolean `hidden` becomes `yes`/`no` in one place**,
+  `WP_ShowHide_Blocks::shortcode_atts()`, along with the rule that an empty
+  label means the *default* label rather than an empty button — the defaults are
+  translated strings, so a `block.json` cannot hold them.
+* **Neither entry point may call the other.** The block must not build
+  `[showhide]…[/showhide]` and hand it to `do_shortcode()`, and the shortcode
+  must not be rewritten as a thin wrapper over the block. They are siblings over
+  `WP_ShowHide_Template`, and each is tested with the other unregistered.
 * **More/less text is interpolated with `str_replace()`, not `sprintf()`.** The
   strings are user-supplied attributes, and a stray `%d` in `sprintf()` is a
   fatal, not a typo.
@@ -57,8 +82,15 @@ about their last result** — CI is the authority, and this file cannot be.
 
 `tests/test-shortcode.php` covers attribute handling and the instance numbering;
 `tests/test-escaping.php` is the regression guard for the attribute values that
-reach `id`/`class`; `tests/e2e/showhide.spec.js` is the only place the toggle's
-`aria-expanded` and event dispatch are actually exercised.
+reach `id`/`class`; `tests/test-blocks.php` pins that the block and the
+shortcode wrap content identically and that neither needs the other;
+`tests/e2e/showhide.spec.js` and `tests/e2e/blocks.spec.js` are the only places
+the toggle's `aria-expanded` and event dispatch are actually exercised.
+
+The two markup comparisons in `test-blocks.php` normalise one thing away: the
+renderer numbers repeat uses of a type within a post, and rendering a block and
+a shortcode is two uses, so the second gets `-2` on its ids. That is the counter
+working, and a separate test asserts it does.
 
 **Scan the plugin's own files with an allow list, not a deny list.** A metadata
 test that walked everything under the plugin root and subtracted `tests/` found

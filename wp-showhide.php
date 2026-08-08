@@ -62,6 +62,8 @@ define( 'WP_SHOWHIDE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WP_SHOWHIDE_URL', plugin_dir_url( __FILE__ ) );
 
 require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide-template.php';
+require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide-blocks.php';
 require_once WP_SHOWHIDE_DIR . 'includes/class-wp-showhide.php';
 
 WP_ShowHide::get_instance();
+WP_ShowHide_Blocks::init();
