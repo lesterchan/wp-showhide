@@ -86,7 +86,7 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 
 ## Screenshots
 
-1. Three blocks on a page, two of them closed
+1. Four blocks on one page, three of them closed: the default, one that starts open, and two more whose ids do not collide
 2. The same page with a block opened
 
 ## Changelog
