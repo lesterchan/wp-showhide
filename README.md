@@ -14,7 +14,7 @@ Allows you to embed content within your blog post via WordPress ShortCode API an
 ## Description
 By default the content is hidden and user will have to click on the "Show Content" button to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
 
-There is nothing to configure and no settings screen. Every choice the plugin offers is an attribute of the shortcode that makes it, so two blocks in the same post can behave differently.
+There is nothing to configure and no settings screen. Every choice the plugin offers is an attribute of the shortcode that makes it, so two toggles in the same post can behave differently.
 
 ### Features
 * One shortcode, `[showhide]`, usable any number of times in a post or page
@@ -66,7 +66,7 @@ The shortcode is unchanged and still supported. It is not deprecated, posts that
 .pressrelease-content.sh-show { }
 ```
 
-3. Every toggle fires three events on the `.sh-link` element, and all three bubble, so one listener on the document covers every block on the page: `sh-link:more` when a block opens, `sh-link:less` when it closes, and `sh-link:toggle` on both.
+3. Every toggle fires three events on the `.sh-link` element, and all three bubble, so one listener on the document covers every toggle on the page: `sh-link:more` when a toggle opens, `sh-link:less` when it closes, and `sh-link:toggle` on both.
 
 ## Frequently Asked Questions
 
@@ -85,15 +85,15 @@ add_action( 'wp_enqueue_scripts', function () {
 The toggle keeps working; the button will simply look like your theme's buttons instead of like a text link.
 
 ### Why did the same type give me duplicate IDs?
-It no longer does. Since 2.0.0 the first block of a given type in a post keeps the ID it has always had and later ones are suffixed `-2`, `-3` and so on. Style by class rather than by ID if you use the same type more than once.
+It no longer does. Since 2.0.0 the first toggle of a given type in a post keeps the ID it has always had and later ones are suffixed `-2`, `-3` and so on. Style by class rather than by ID if you use the same type more than once.
 
 ### Does the plugin store anything in my database?
 One row, and it is tiny. `wp_showhide_version` records the version last run so that an upgrade knows what it is upgrading from. There is no settings row, because there are no settings. Deleting the plugin from the Plugins screen removes the row, on a single site and on every site of a network.
 
 ## Screenshots
 
-1. Four blocks on one page, three of them closed: the default, one that starts open, and two more whose ids do not collide
-2. The same page with a block opened
+1. Four toggles on one page, three of them closed: the default, one that starts open, and two more whose ids do not collide
+2. The same page with a toggle opened
 
 ## Changelog
 ### 3.0.0
