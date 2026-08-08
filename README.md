@@ -27,6 +27,13 @@ There is nothing to configure and no settings screen. Every choice the plugin of
 ### Donations
 I spent most of my free time creating, updating, maintaining and supporting these plugins, if you really love my plugins and could spare me a couple of bucks, I will really appreciate it. If not feel free to use it without any obligations.
 
+## Installation
+
+1. Install and activate the plugin.
+1. Wrap the content you want hidden in `[showhide]` and `[/showhide]`, or add the **Show/Hide** block in the editor and put the content inside it.
+
+There is nothing to configure and no settings screen. Every choice the plugin offers is an attribute of the shortcode or a control in the block's sidebar, so two toggles in the same post can behave differently.
+
 ## Usage
 1. By default, content within the showhide shortcode will be hidden.
 2. Example: `[showhide]Press release content goes in here.[/showhide]`
