@@ -12,7 +12,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Allows you to embed content within your blog post via WordPress ShortCode API and toggling the visibility of the content via a button.
 
 ## Description
-By default the content is hidden and user will have to click on the "Show Content" button to toggle it. Similar to what Engadget is doing for their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
+WP-ShowHide hides part of a post behind a button, so something long -- a press release, a changelog, a spoiler -- does not fill the page until a reader asks for it. The button says how many words it is hiding, which is what Engadget does with their press releases. Example usage: `[showhide type="pressrelease"]Press Release goes in here.[/showhide]`
 
 There is nothing to configure and no settings screen. Every choice the plugin offers is an attribute of the shortcode that makes it, so two toggles in the same post can behave differently.
 
