@@ -210,7 +210,7 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 	 */
 	public function test_the_plugin_stores_nothing() {
 		do_action( 'plugins_loaded' );
-		do_action( 'init' );
+		$this->fire_init();
 
 		$this->assertSame(
 			array(),
