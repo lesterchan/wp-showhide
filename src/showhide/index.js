@@ -94,7 +94,7 @@ function Edit( { attributes, setAttributes } ) {
 						__nextHasNoMarginBottom
 						label={ __( 'Type', 'wp-showhide' ) }
 						help={ __(
-							'Names the classes and element ids the markup carries, so a theme can style one kind of block differently from another.',
+							'Names the classes and element ids the markup carries, so a theme can style one kind of toggle differently from another.',
 							'wp-showhide',
 						) }
 						value={ type }

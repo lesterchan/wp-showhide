@@ -94,6 +94,7 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 
 1. Four toggles on one page, three of them closed: the default, one that starts open, and two more whose ids do not collide
 2. The same page with a toggle opened
+3. The Show/Hide block in the editor, holding the content it hides as ordinary blocks so it stays editable, with the sidebar carrying the same choices the shortcode attributes carry
 
 ## Changelog
 ### 3.0.0
