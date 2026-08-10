@@ -4,7 +4,7 @@
  *
  * Runs with the plugin inactive, so nothing here may depend on the plugin's
  * own classes or constants being loaded. The row name is therefore spelled out
- * rather than read from WP_ShowHide_Options.
+ * literally, and there is no options class to read it from in any case.
  *
  * @package WP-ShowHide
  */

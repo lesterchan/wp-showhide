@@ -45,6 +45,11 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 	 * unhooking recipe people used to suppress the stylesheet, which no longer
 	 * removes anything now that the assets are files with handles.
 	 *
+	 * No option name is among these. The notice tells the owner the plugin
+	 * stores nothing, and naming a row would send them looking for one no
+	 * released version ever wrote -- only an early pre-release 3.0.0 build did,
+	 * which is the one case uninstall.php still cleans up.
+	 *
 	 * @return string[]
 	 */
 	protected function upgrade_notice_subjects() {
@@ -60,7 +65,6 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 			'`ShowHide_Template`',
 			'`WP_ShowHide_Template`',
 			"wp_dequeue_style( 'wp-showhide' )",
-			'`wp_showhide_version`',
 		);
 	}
 
