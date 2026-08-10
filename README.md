@@ -95,7 +95,7 @@ The toggle keeps working; the button will simply look like your theme's buttons 
 It no longer does. Since 2.0.0 the first toggle of a given type in a post keeps the ID it has always had and later ones are suffixed `-2`, `-3` and so on. Style by class rather than by ID if you use the same type more than once.
 
 ### Does the plugin store anything in my database?
-One row, and it is tiny. `wp_showhide_version` records the version last run so that an upgrade knows what it is upgrading from. There is no settings row, because there are no settings. Deleting the plugin from the Plugins screen removes the row, on a single site and on every site of a network.
+Nothing at all. There are no settings and no version row - your database is exactly as it was before installing, and deleting the plugin from the Plugins screen leaves nothing behind, on a single site and on every site of a network.
 
 ## Screenshots
 
@@ -105,12 +105,12 @@ One row, and it is tiny. `wp_showhide_version` records the version last run so t
 
 ## Changelog
 ### 3.0.0
-* BREAKING: Requires WordPress 6.8 and PHP 8.2, up from 6.0 and 7.4.
+* BREAKING: Requires WordPress 6.8 and PHP 8.2.
 * BREAKING: Removed the `showhide_scripts()`, `showhide_js()` and `showhide_shortcode()` global functions. They were internals; the plugin registers its own shortcode and assets.
 * BREAKING: The `ShowHide` and `ShowHide_Template` classes are now `WP_ShowHide` and `WP_ShowHide_Template`.
 * NEW: Added a Show/Hide block for the block editor, which holds the content it hides as ordinary blocks. The `[showhide]` shortcode is unchanged and still supported — it is not deprecated, posts using it need no editing, and the two render the same markup.
 * NEW: Restructured into `includes/`, behind the `WP_ShowHide`, `WP_ShowHide_Template` and `WP_ShowHide_Options` classes.
-* NEW: Added the `wp_showhide_version` row, and an `uninstall.php` that deletes it on a single site and across a network.
+* NEW: Added an `uninstall.php`, so deleting the plugin leaves nothing behind on a single site or across a network.
 * NEW: The toggle script and the stylesheet are now files, `js/wp-showhide.js` and `css/wp-showhide.css`, so a browser caches them once instead of reading them inline on every page.
 * NEW: Added a PHPUnit and vitest test suite, and GitHub Actions CI.
 * CHANGED: Both elements the shortcode renders now carry a `wp-showhide` class alongside the classes they have always had. Nothing was renamed or removed, so existing theme CSS is unaffected.
@@ -137,4 +137,4 @@ add_action( 'wp_enqueue_scripts', function () {
 
 **The script and the stylesheet are files now, not inline blocks**, served from the plugin's own `js/` and `css/` directories, so a caching or minifying plugin will see them for the first time. Let it rebuild after you update.
 
-The plugin now stores one row, `wp_showhide_version`, and deletes it on uninstall. There is still no settings screen and nothing to configure.
+The plugin stores nothing in your database - no settings, no version row. There is still no settings screen and nothing to configure.

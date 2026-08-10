@@ -99,9 +99,3 @@ two classes locally and three under CI, where `composer install` has run and
 class inside the plugin directory. Name `includes/` plus the root entry points
 instead; a deny list acquires a new member every time somebody installs
 something.
-
-## Known discrepancy
-
-The README's 3.0.0 Upgrade Notice ends "The plugin now stores one row,
-`wp_showhide_version`, and deletes it on uninstall." That is untrue — commit
-`0d31075` ("Store nothing at all") removed it.
