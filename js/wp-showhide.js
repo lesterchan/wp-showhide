@@ -11,6 +11,8 @@
  * id of the element it controls in aria-controls.
  */
 ( function() {
+	'use strict';
+
 	document.addEventListener( 'click', function( event ) {
 		// closest() is missing on a non-element target, which a click on a
 		// text node inside the button reports in some browsers.
