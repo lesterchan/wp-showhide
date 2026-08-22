@@ -222,4 +222,26 @@ class WP_ShowHide_Metadata_Test extends Plugin_Metadata_TestCase {
 			'WP-ShowHide wrote an option row; it is meant to store nothing at all.'
 		);
 	}
+
+	/**
+	 * The uninstaller walks the whole network, not the first hundred sites.
+	 *
+	 * A single-site suite cannot build a 101-site network, so this is a
+	 * source-level guard. php_strip_whitespace() rather than raw text, so a
+	 * comment merely describing the old capped call cannot satisfy it.
+	 *
+	 * @return void
+	 */
+	public function test_uninstall_walks_the_whole_network() {
+		$source = (string) php_strip_whitespace( $this->metadata_root() . '/uninstall.php' );
+
+		$this->assertStringContainsString( "'number' => 0", $source, 'uninstall.php stops at the default hundred sites.' );
+		$this->assertStringContainsString( "'fields' => 'ids'", $source, 'uninstall.php hydrates whole site objects to read one column.' );
+		$this->assertStringNotContainsString( 'wp_get_sites', $source, 'wp_get_sites() is capped at 100 sites, so a larger network uninstalls in part.' );
+		$this->assertMatchesRegularExpression(
+			'/switch_to_blog\([^}]*restore_current_blog\(\)/s',
+			$source,
+			'uninstall.php does not close a block between switch_to_blog() and restore_current_blog().'
+		);
+	}
 }
