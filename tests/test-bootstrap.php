@@ -81,7 +81,7 @@ class WP_ShowHide_Bootstrap_Test extends WP_ShowHide_TestCase {
 		$code = php_strip_whitespace( dirname( __DIR__ ) . '/uninstall.php' );
 
 		$this->assertMatchesRegularExpression(
-			"/!\s*defined\(\s*'WP_UNINSTALL_PLUGIN'\s*\)/",
+			"/defined\(\s*'WP_UNINSTALL_PLUGIN'\s*\)\s*\|\|\s*exit;/",
 			$code,
 			'uninstall.php must exit unless WordPress is really uninstalling the plugin.'
 		);
