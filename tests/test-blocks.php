@@ -388,11 +388,11 @@ class WP_ShowHide_Blocks_Test extends WP_ShowHide_TestCase {
 	public function test_rendering_the_block_enqueues_the_toggle_script() {
 		do_action( 'wp_enqueue_scripts' );
 
-		$this->assertFalse( wp_script_is( WP_SHOWHIDE_SLUG, 'enqueued' ), 'Registering the assets does not enqueue the script on its own.' );
+		$this->assertFalse( wp_script_is( 'wp-showhide', 'enqueued' ), 'Registering the assets does not enqueue the script on its own.' );
 
 		$this->render_block( array(), 'Body' );
 
-		$this->assertTrue( wp_script_is( WP_SHOWHIDE_SLUG, 'enqueued' ), 'The block enqueues the script the toggle needs.' );
+		$this->assertTrue( wp_script_is( 'wp-showhide', 'enqueued' ), 'The block enqueues the script the toggle needs.' );
 	}
 
 	/**
@@ -409,7 +409,7 @@ class WP_ShowHide_Blocks_Test extends WP_ShowHide_TestCase {
 
 		$this->render( '[showhide]Body[/showhide]' );
 
-		$this->assertTrue( wp_script_is( WP_SHOWHIDE_SLUG, 'enqueued' ), 'The shortcode enqueues the script the toggle needs.' );
+		$this->assertTrue( wp_script_is( 'wp-showhide', 'enqueued' ), 'The shortcode enqueues the script the toggle needs.' );
 	}
 
 	// --- rendering through the block parser -------------------------------

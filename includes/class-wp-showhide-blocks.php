@@ -97,7 +97,7 @@ class WP_ShowHide_Blocks {
 	 */
 	public static function render( $attributes, $content = '' ) {
 		// Only the pages that actually use the block pay for the script.
-		wp_enqueue_script( WP_SHOWHIDE_SLUG );
+		wp_enqueue_script( 'wp-showhide' );
 
 		return WP_ShowHide_Template::render( self::shortcode_atts( $attributes ), $content );
 	}

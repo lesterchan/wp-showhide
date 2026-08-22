@@ -54,9 +54,9 @@ class WP_ShowHide {
 	 * @return void
 	 */
 	public function register_assets() {
-		wp_register_script( WP_SHOWHIDE_SLUG, WP_SHOWHIDE_URL . 'js/wp-showhide.js', array(), WP_SHOWHIDE_VERSION, true );
+		wp_register_script( 'wp-showhide', WP_SHOWHIDE_URL . 'js/wp-showhide.js', array(), WP_SHOWHIDE_VERSION, true );
 
-		wp_enqueue_style( WP_SHOWHIDE_SLUG, WP_SHOWHIDE_URL . 'css/wp-showhide.css', array(), WP_SHOWHIDE_VERSION );
+		wp_enqueue_style( 'wp-showhide', WP_SHOWHIDE_URL . 'css/wp-showhide.css', array(), WP_SHOWHIDE_VERSION );
 	}
 
 	/**
@@ -68,7 +68,7 @@ class WP_ShowHide {
 	 */
 	public function shortcode( $atts, $content = null ) {
 		// Only the pages that actually use the shortcode pay for the script.
-		wp_enqueue_script( WP_SHOWHIDE_SLUG );
+		wp_enqueue_script( 'wp-showhide' );
 
 		return WP_ShowHide_Template::render( $atts, $content );
 	}
