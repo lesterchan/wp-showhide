@@ -20,7 +20,7 @@ class WP_ShowHide {
 	private static $instance = null;
 
 	/**
-	 * Retrieve, creating on first call.
+	 * Get the instance, creating it on first call.
 	 *
 	 * @return WP_ShowHide
 	 */
