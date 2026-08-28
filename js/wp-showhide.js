@@ -1,14 +1,9 @@
 /**
  * WP-ShowHide's front end toggle.
  *
- * One delegated listener on the document rather than one per block: the
- * shortcode can appear any number of times on a page, and blocks rendered
- * after this file runs -- by a lazy-loaded comment list, an AJAX-paginated
- * archive -- work without anything having to re-bind.
- *
- * Everything the handler needs is on the markup: the button carries its two
- * labels in data-sh-more and data-sh-less, its state in aria-expanded, and the
- * id of the element it controls in aria-controls.
+ * One delegated listener, so blocks rendered after this file runs need no
+ * re-bind. Everything the handler needs is on the markup: labels in
+ * data-sh-more / data-sh-less, state in aria-expanded, target in aria-controls.
  */
 ( function() {
 	'use strict';
