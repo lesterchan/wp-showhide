@@ -1,0 +1,43 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method WP_ShowHide_Blocks\:\:render\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: includes/class-wp-showhide-blocks.php
+
+		-
+			message: '#^Method WP_ShowHide_Blocks\:\:shortcode_atts\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: includes/class-wp-showhide-blocks.php
+
+		-
+			message: '#^Method WP_ShowHide_Blocks\:\:shortcode_atts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: includes/class-wp-showhide-blocks.php
+
+		-
+			message: '#^Method WP_ShowHide_Template\:\:render\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: includes/class-wp-showhide-template.php
+
+		-
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, list\<string\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: includes/class-wp-showhide-template.php
+
+		-
+			message: '#^Parameter \#2 \$atts of function shortcode_atts expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: includes/class-wp-showhide-template.php
+
+		-
+			message: '#^Method WP_ShowHide\:\:shortcode\(\) has parameter \$atts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: includes/class-wp-showhide.php
